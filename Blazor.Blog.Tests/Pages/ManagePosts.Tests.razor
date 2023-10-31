@@ -1,0 +1,78 @@
+﻿@using Radzen.Blazor;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should filter if dropdown value is changed to deleted")]
+    public void ShouldFilterIfDropDownValueIsChangedToDeleted() 
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+        });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<ManagePosts>();
+        var pager = cut.Instance.pagerComponentGeneric;
+        cut.Instance.StatusTypeChanged(BlogPostStatus.Deleted);
+        var pageSize = pager.PageSize;
+        var deletedCount = arrangeResult.RandomPostDto.DeletedCount;
+        var expected = deletedCount <= pageSize ? deletedCount : pageSize;
+        // Assert
+        Assert.Equal(expected, pager.Pager!.CurrentItemList!.Count());
+    }
+
+    [Fact(DisplayName = "Should filter if dropdown value is changed to drafts")]
+    public void ShouldFilterIfDropDownValueIsChangedToDrafts()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<ManagePosts>();
+        var pager = cut.Instance.pagerComponentGeneric;
+        cut.Instance.StatusTypeChanged(BlogPostStatus.Drafts);
+        var pageSize = pager.PageSize;
+        var unpublishedCount = arrangeResult.RandomPostDto.UnpublishedCount;
+        var expected = unpublishedCount <= pageSize ? unpublishedCount : pageSize;
+        // Assert
+        Assert.Equal(expected, pager.Pager!.CurrentItemList!.Count());
+    }
+
+    [Fact(DisplayName = "Should filter if dropdown value is changed to published")]
+    public void ShouldFilterIfDropDownValueIsChangedToPublished()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<ManagePosts>();
+        var pager = cut.Instance.pagerComponentGeneric;
+        cut.Instance.StatusTypeChanged(BlogPostStatus.Published);
+        var pageSize = pager.PageSize;
+        var publishedCount = arrangeResult.RandomPostDto.PublishableCount;
+        var expected = publishedCount <= pageSize ? publishedCount : pageSize;
+        // Assert
+        Assert.Equal(expected, pager.Pager!.CurrentItemList!.Count());
+    }
+}

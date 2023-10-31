@@ -1,0 +1,172 @@
+﻿@page "/createpost"
+@page "/editpost/{url}"
+@inherits DataPage
+@inject NavigationManager navMan
+@attribute [Authorize]
+<EditMenu />
+<section>
+    <div id="editor">
+        <EditForm Model="@Post" OnValidSubmit="@Submit">
+            <h3 class="title">@title</h3>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="my-3 vw-100">
+                <RadzenFormField Text="Post Title" Variant="@variant" Style="width:30%">
+                    <RadzenTextBox @bind-Value="Post.Title" Style="width:30%" Placeholder="Post Title" />
+                </RadzenFormField>
+                <ValidationMessage For="() => Post.Title" class="text-danger" />
+                <RadzenFormField Text="Blog Category" Variant="@variant">
+                    <RadzenDropDown @bind-Value=@Post.BlogCategoryId Data=@Categories TextProperty="CategoryName" ValueProperty="BlogCategoryId" Placeholder="Select" TValue="Guid" />
+                </RadzenFormField>
+                <RadzenFormField Text="Author" Variant="@variant">
+                    <RadzenDropDown @bind-Value=@Post.AuthorId Data=@Authors TextProperty="AuthorName" ValueProperty="AuthorId" Placeholder="Select" TValue="int" />
+                </RadzenFormField>
+                <div class="mt-1 mx-3">
+                <RadzenCheckBox @bind-Value=@Post.Published Name="Published" />
+                <RadzenLabel Component="Published" Text="Published" />
+                </div>
+                <div class ="mt-1 mx-1">
+                <RadzenCheckBox @bind-Value=@Post.Archived Name="Deleted" />
+                <RadzenLabel Component="Deleted" Text="Deleted" />
+                </div>
+            </RadzenStack>
+            <RadzenHtmlEditor @bind-Value=@Post.Post style="height: 550px;" UploadUrl="upload/image" class="mb-3" Mode="HtmlEditorMode.Source" />
+            <button name="save" @ref="submit" type="submit" class="btn btn-primary form-check form-control mt-1 w-15">Save</button>
+            
+            @if (IsUpdate)
+            {
+                <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning form-check form-control mt-1 w-15 ml-1">Cancel</button>
+                <button name="delete" type="button" @onclick=Delete class="btn btn-danger form-check form-control mt-1 w-15">Delete</button>
+            }
+            <button name="preview" type="submit" @onclick=@(() => IsPreview = true) class="btn btn-success form-check form-control mt-1 w-15 ml-1">Preview</button>
+        </EditForm>
+    </div>
+</section>
+@code {
+    #region MemberVariables
+
+    /// <summary>
+    /// Url parameter is used to retrieve the post
+    /// </summary>
+    [Parameter]
+    public string? Url { get; set; }
+    /// <summary>
+    /// Sets the h3 tag indicating the fucntion of the page (edit or create)
+    /// </summary>
+    public string? title { get; set; } = "Create blog post";
+    /// <summary>
+    /// The post that the page will be editing
+    /// </summary>
+    [Parameter]
+    public BlogPost Post { get; set; } = new BlogPost();
+    /// <summary>
+    /// List of categories for populating the category drop down
+    /// </summary>
+    public IEnumerable<BlogCategory> Categories { get; set; } = default!;
+    /// <summary>
+    /// List of authors for populating the author drop down
+    /// </summary>
+    public IEnumerable<Author> Authors { get; set; } = default!;
+    /// <summary>
+    /// sets the variant type for the Radzen from fields
+    /// </summary>
+    Variant variant = Variant.Outlined;
+    /// <summary>
+    /// Sets whether the page function is edit/update
+    /// </summary>
+    private bool IsUpdate = false;
+    /// <summary>
+    /// Sets an element reference for the submit button, this is required to set focus prior to submitting
+    /// the HtmlEditor html value only updates after the focus is lost
+    /// </summary>
+    private ElementReference submit;
+    /// <summary>
+    /// Sets whether the page redirects to the preview page as the submit handler is used for both submit and preview buttons
+    /// </summary>
+    public bool IsPreview { get; set; } = false;
+
+    #endregion
+
+    /// <summary>
+    /// Determines whether the function of the page is edit or create and sets parameters accordingly
+    /// This has to run after render as the post data is retrieved using a URL parameter
+    /// </summary>
+    /// <param name="firstRender"></param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Categories = await BlogCategoryService.GetAllCategories();
+            Authors = await AuthorService.GetAllAuthors();
+            if (!String.IsNullOrEmpty(Url))
+            {
+                var result = await BlogPostService.GetBlogPostByUrl(Url);
+                if (result != null)
+                {
+                    title = "Edit blog post";
+                    Post = result;
+                    IsUpdate = true;
+                }
+                else
+                    navMan.NavigateTo($"createpost", true);
+            }
+            else
+            {
+                title = "Create blog post";
+                Post = new BlogPost();
+                IsUpdate = false;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Handles the submit button click, since the action is a form post, the method only runs if the model is valid.
+    /// The focus is set on the submit button first to avoid issues with the HtmlEditor, 
+    /// who's value is only updated after focus is lost.
+    /// </summary>
+    private async Task Submit()
+    {
+        await submit.FocusAsync();
+        var date = DateTime.Now;
+        Post.Updated = date;
+        Post.NormalizedTitle = NavUrlHelpers.NormalizePostTitleForUrl(Post.Title);
+        Post.ThumbnailUrl = NavUrlHelpers.GetThumbnailUrl(Post.Post);
+
+        if (IsUpdate)
+        {
+            await BlogPostService.UpdateBlogPost(Post);
+        }
+        else
+        {
+            Post.Created = date;
+            await BlogPostService.CreateBlogPost(Post);
+        }
+        if(IsPreview)
+            navMan.NavigateTo(NavUrlHelpers.PreviewUrlStub + Post.NormalizedTitle, true);
+        else
+            navMan.NavigateTo(NavUrlHelpers.PostUrlStub + Post.NormalizedTitle, true);
+    }
+
+    /// <summary>
+    /// Handles the cancel button click, since the cancel button is only available on the edit page,
+    /// canceling redirects to the post page
+    /// </summary>
+    private void Cancel()
+    {
+        navMan.NavigateTo(NavUrlHelpers.PostUrlStub + Post.NormalizedTitle, true);
+    }
+
+    /// <summary>
+    /// Handles the Delete button click
+    /// The actual is data is not deleted, instead the post is marked as archived
+    /// </summary>
+    private async Task Delete()
+    {
+        if (Post != null && IsUpdate)
+        {
+            await BlogPostService.ArchiveBlogPost(Post);
+            navMan.NavigateTo(NavUrlHelpers.ManagePostsUrlStub, true);
+        }        
+    }
+}

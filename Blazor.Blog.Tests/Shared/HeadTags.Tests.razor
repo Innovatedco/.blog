@@ -1,0 +1,71 @@
+﻿@using Blazor.Blog.Shared;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render blog post meta tags if a blog post is provided")]
+    public void ShouldRenderBlogPostMetaTagsIfABlogPostIsProvided()
+    {
+        // Arrange
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        //var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+        using var ctx = new TestContext();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseConfiguration = true
+            });
+        // Act/Assert
+        var cut = ctx.RenderComponent<HeadTags>(parameters => parameters
+            .Add(p => p.BlogPost, post)
+        );
+        foreach(var tag in MetaTagHelpers.BlogPostMetaTags)
+        {
+            var selector = $"meta[{tag.MetaProperty}='{tag.MetaValue}']";
+            var content = cut.Find(selector).Attributes["content"];
+            Assert.NotNull(content);
+        }
+    }
+
+    [Fact(DisplayName = "Should render blog category meta tags if a blog post is provided")]
+    public void ShouldRenderBlogPostMetaTagsIfABlogCategoryIsProvided()
+    {
+        // Arrange
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+        using var ctx = new TestContext();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+        {
+            UseConfiguration = true
+        });
+
+        // Act/Assert
+        var cut = ctx.RenderComponent<HeadTags>(parameters => parameters
+            .Add(p => p.BlogCategory, category)
+        );
+
+        foreach (var tag in MetaTagHelpers.BlogCategoryMetaTags)
+        {
+            var selector = $"meta[{tag.MetaProperty}='{tag.MetaValue}']";
+            var content = cut.Find(selector).Attributes["content"];
+            Assert.NotNull(content);
+        }
+    }
+
+    [Fact(DisplayName = "Should render regular meta tags if no parameters are provided")]
+    public void ShouldRenderRegularMetaTagsIfNoParametersAreProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+        {
+            UseConfiguration = true
+        });
+
+        // Act/Assert
+        var cut = ctx.RenderComponent<HeadTags>();
+        foreach (var tag in MetaTagHelpers.BlogCategoryMetaTags)
+        {
+            var selector = $"meta[{tag.MetaProperty}='{tag.MetaValue}']";
+            var content = cut.Find(selector).Attributes["content"];
+            Assert.NotNull(content);
+        }
+    }
+}

@@ -1,0 +1,26 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render")]
+    public void ShouldRender()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var url = NavUrlHelpers.BaseUrlWithTail;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<Blazor.Blog.Pages.Index>();
+        var title = cut.Find("h3.recentPostsTitle");
+
+        // Assert
+        Assert.NotNull(title);
+    }
+}

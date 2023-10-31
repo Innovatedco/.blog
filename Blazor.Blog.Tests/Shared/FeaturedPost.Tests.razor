@@ -1,0 +1,59 @@
+﻿@inherits TestContext;
+
+@code {
+    [Fact(DisplayName = "Featured component should render a featured post with a title if a title parameter is provided")]
+    public void Featured_ShouldRenderAFeaturedPostWithATitleIfTheTitleParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var testTitle = "Test Title";
+
+        // Act
+        var cut = ctx.RenderComponent<FeaturedPost>(parameters => parameters
+        .Add(p => p.Post, post)
+        .Add(p => p.Title, testTitle)
+        );
+        // Assert
+        // finds the h1 tage for title
+        var title = cut.Find("h1");
+        // asserts it contains the provided text
+        Assert.Contains(testTitle, title.InnerHtml);
+    }
+
+    [Fact(DisplayName = "Featured Component should render a featured post if a valid post parameter is provided")]
+    public void Featured_ShouldRenderAFeaturedPostIfAValidPostIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<FeaturedPost>(parameters => parameters
+            .Add(p => p.Post, post)
+        );
+        var avatar = cut.FindComponent<Avatar>();
+        var title = cut.Find("h1");
+
+        // Assert
+        // checks the post title has been rendered
+        Assert.Contains(post.Title, title.InnerHtml);
+        // checks the date has been rendered
+        Assert.NotNull(avatar);
+    }
+
+    [Fact(DisplayName = "Featured component should not render a featured post if a valid post parameter is not provided")]
+    public void Featured_ShouldNotRenderAFeaturedPostIfAValidPostIsNotProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+
+        // Act
+        var cut = ctx.RenderComponent<FeaturedPost>();
+        var markup = cut.Markup;
+
+        // Assert
+        // mark up should be empty since a blog post was not provided
+        Assert.Empty(markup);
+    }
+}

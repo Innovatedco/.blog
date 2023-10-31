@@ -1,0 +1,264 @@
+﻿@using Blazor.Blog.Data;
+@using Radzen.Blazor;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "PostList component should render a list of posts if a valid list is provided")]
+    public void PostListShouldRenderAListOfPostsIfAValidListIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var posts = BlogPostHelpers.BuildPublishableBlogPostsFixture(10);
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, posts);
+        });
+        var blogPosts = cut.FindAll("div.blog-post");
+        // Assert
+        Assert.Equal(10, blogPosts.Count);
+    }
+
+    [Fact(DisplayName = "PostList component should not render a list of posts if an valid list is provided")]
+    public void PostListShouldNotRenderAListOfPostsIfAnInvalidListIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var posts = BlogPostHelpers.BuildPublishableBlogPostsFixture(0);
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, posts);
+        });
+        var blogPosts = cut.FindAll("div.blog-post");
+        // Assert
+        Assert.Empty(blogPosts);
+    }
+
+    [Fact(DisplayName = "PostList component should render a title if a title parameter is provided")]
+    public void PostListShouldRenderATitleIfATitleParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var posts = BlogPostHelpers.BuildPublishableBlogPostsFixture(1);
+        var title = "Post List";
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, posts);
+            parameters.Add(p => p.Title, title);
+        });
+        var listTitle = cut.Find("h3");
+        // Assert
+        Assert.Equal(title, listTitle.GetInnerText());
+    }
+
+    [Fact(DisplayName = "PostList component should not render a title if a title parameter is not provided")]
+    public void PostListShouldNotRenderATitleIfATitleParameterIsNotProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var posts = BlogPostHelpers.BuildPublishableBlogPostsFixture(1);
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, posts);
+        });
+        var listTitle = cut.FindAll("h3");
+        // Assert
+        Assert.Empty(listTitle);
+    }
+
+    [Fact(DisplayName = "PostList component should render a Draft div if the post is unpublished")]
+    public void PostListShouldRenderADraftDivIfThePostIsUnpublished()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var postCount = dto.List.Count();
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+        var drafts = cut.FindAll("div.draft").Count();
+        // Assert
+        Assert.Equal(dto.UnpublishedCount, drafts);
+    }
+
+    [Fact(DisplayName = "PostList component should not render a Draft div if the post is published")]
+    public void PostListShouldNotRenderADraftDivIfThePostIsPublished()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var published = BlogPostHelpers.BuildPublishableBlogPostsFixture(2);
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, published);
+        });
+        var drafts = cut.FindAll("div.draft");
+        // Assert
+        Assert.Empty(drafts);
+    }
+
+    [Fact(DisplayName = "PostList component should render a Deleted div if the post is archived")]
+    public void PostListShouldRenderADeletedDivIfThePostIsArchived()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var postCount = dto.List.Count();
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+        var drafts = cut.FindAll("div.deleted").Count();
+        // Assert
+        Assert.Equal(dto.DeletedCount, drafts);
+    }
+
+    [Fact(DisplayName = "PostList component should not render an Archived div if the post isn't archived")]
+    public void PostListShouldNotRenderADeletedDivIfThePostIsntArchived()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var notArchived = BlogPostHelpers.BuildPublishableBlogPostsFixture(2);
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, notArchived);
+        });
+        var deleted = cut.FindAll("div.deleted");
+        // Assert
+        Assert.Empty(deleted);
+    }
+
+    [Fact(DisplayName = "PostList component should render a thumbnail div if the post has a thumbnail")]
+    public void PostListShouldRenderAThumbNailDivIfThePostHasAThumbnail()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var postCount = dto.List.Count();
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+        var thumbnails = cut.FindAll("div.blog-post-body-thumb").Count();
+        // Assert
+        Assert.Equal(dto.Total, thumbnails);
+    }
+
+    [Fact(DisplayName = "PostList component should not render a thumbnail div if the post hasn't a thumbnail")]
+    public void PostListShouldNotRenderAThumbNailDivIfThePostDoesntHaveAThumbnail()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var postCount = dto.List.Count();
+        var post = dto.List.First();
+        post.ThumbnailUrl = string.Empty;
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+        var thumbnails = cut.FindAll("div.blog-post-body-thumb").Count();
+        // Assert
+        Assert.NotEqual(dto.Total, thumbnails);
+    }
+
+    [Fact(DisplayName = "PostList component should render a mini toolbar if it is an edit page")]
+    public void PostListShouldRenderAMiniToolbarIfIfItIsAnEditPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+
+        var toolBoxCount = cut.FindAll("div.tool-box").Count();
+        // Assert
+        Assert.Equal(dto.Total, toolBoxCount);
+    }
+
+    [Fact(DisplayName = "Should change stub sizes when OnChange is fired")]
+    public async Task ShouldChangeStubSizesClassWheOnChangeIsFired()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+
+        var mediaComponent = cut.FindComponent<RadzenMediaQuery>().Instance;
+        await cut.InvokeAsync(() => mediaComponent.Change.InvokeAsync(true));
+
+        // Assert
+        Assert.Equal(80, cut.Instance.PostWithThumbStubLength);
+        Assert.Equal(150, cut.Instance.PostStubLength);
+
+        // Act
+        await cut.InvokeAsync(() => mediaComponent.Change.InvokeAsync(false));
+
+        // Assert
+        Assert.Equal(200, cut.Instance.PostWithThumbStubLength);
+        Assert.Equal(150, cut.Instance.PostStubLength);
+    }
+
+    [Fact(DisplayName = "Should call Tally from Event Subscription")]
+    public async Task ShouldCallTallyFromEventSubscription()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+
+        // Act
+        var cut = ctx.RenderComponent<PostList>(parameters =>
+        {
+            parameters.Add(p => p.Posts, dto.List);
+        });
+
+        var miniToolbox = cut.FindComponent<MiniToolbox>().Instance;
+        var before = cut.Instance.Tally;
+
+        await cut.InvokeAsync(() => miniToolbox.OnStatusChanged.InvokeAsync());
+        var after = cut.Instance.Tally;
+
+        //Assert
+        Assert.NotEqual(after, before);
+    }
+}

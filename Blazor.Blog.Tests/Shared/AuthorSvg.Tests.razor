@@ -1,0 +1,19 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "It Should Render An Svg")]
+    public void ItShouldRenderAnSvg()
+    {
+        // Arrange
+        var ctx = new TestContext();
+
+        // Act
+        var cut = ctx.RenderComponent<AuthorSvg>();
+        var svg = cut.Find("svg");
+        var image = cut.Find("image#Background");
+
+        // Assert
+        Assert.NotNull(svg);
+        Assert.NotNull(image);
+    }
+}

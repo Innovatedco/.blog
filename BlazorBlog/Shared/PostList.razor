@@ -1,0 +1,147 @@
+﻿@inject NavigationManager navMan
+<div id="@TemplateClass">
+    @if(Posts != null && Posts.Any())
+    {
+        @if (Title != string.Empty)
+        {
+            <h3>@Title</h3>
+        }
+        @foreach(var post in Posts)
+        {
+            var categoryName = post.Category!.CategoryName;
+            <div class="blog-post p-3 mb-2">
+                @if(!post.Published)
+                {
+                    <div class="draft"></div>
+                }
+                else if(post.Archived)
+                {
+                    <div class="deleted"></div>
+                }
+                <div class="blog-post-header row pb-1">
+                        <div class="col-sm-12 col-lg-9 align-middle">
+                            <a class="p-sm-0 mb-sm-2" href="@("post/" + post.NormalizedTitle)">
+                                <i class="mr-1 fa-solid @(post.Category!.Icon)" title="click here go to post"></i>
+                                @* <h4 class="d-inline-block text-truncate" title="@post.Title">@(TemplateClass == BlogPostsThin ? TextHelpers.FormatStub(post.Title, CalculateTitleStubLength(categoryName)) : post.Title)</h4> *@
+                            @{ var titleClass = post.Title.Length > 35 ? "w-90" : ""; }
+                            <h4 class="@titleClass" title="@post.Title">@post.Title</h4>
+                            </a>
+                        </div>
+                        <div class="py-1 py-lg-0 col-sm-12 col-lg-3 text-lg-right text-sm-left">
+                            <a href="@("/category/" + post.Category!.CategoryNameNormalized)"><span class="btn btn-sm" title="click here to go to category">@post.Category!.CategoryName</span></a>
+                        </div>
+                </div>
+                <a href="@("post/" + post.NormalizedTitle)" name="click here to go to post" class="post-body-container">
+                <div class="row border-top pt-2">
+                
+                    @if(post.ThumbnailUrl != string.Empty)
+                    {
+
+                            <div class="blog-post-body-thumb col-8 pr-0 mx-0" title="@post.Title">
+                                 @(TextHelpers.FormatStub(post.Post, PostWithThumbStubLength))
+                            </div>
+                            <div class="thumbnail col-4">
+                                  <img src="@post.ThumbnailUrl" alt="@post.Title" class="rounded float-right" />
+                            </div>
+                    }
+                    else
+                    {
+                        <div class="blog-post-body" title="click here go to post">
+                        @(TextHelpers.FormatStub(post.Post, PostStubLength))                
+                        </div>
+
+                    }
+
+                </div>
+                </a>
+                <div class="row">
+                    <div class="blog-post-date col-12" title="click here to go to post">
+                        @(post.Created.ToLongDateString())
+                    </div>
+                </div>
+                @if (navMan.Uri.Contains(NavUrlHelpers.ManagePostsUrlStub) || navMan.Uri.Contains(NavUrlHelpers.EditCategoryUrlStub))
+                {
+                    <MiniToolbox Post=@post OnStatusChanged="OnMiniToolBoxStatusChange" />
+                }
+            </div>
+        }
+    }
+</div>
+<RadzenMediaQuery Query="(max-width: 960px)" Change=@OnChange />
+
+@code {
+    #region Member variables
+
+    /// <summary>
+    /// A list of blogposts used to render the list
+    /// </summary>
+    [Parameter]
+    public IEnumerable<BlogPost> Posts { get; set; } = (IEnumerable<BlogPost>) new List<BlogPost>();
+    /// <summary>
+    /// The css class used to style the list based on it's location available space etc
+    /// </summary>
+    [Parameter]
+    public string? TemplateClass { get; set; } = BlogPosts;
+    /// <summary>
+    /// Manually sets the number of characters shown in a post stub for posts without thumbnails
+    /// Defaults to 100
+    /// </summary>
+    [Parameter]
+    public int PostStubLength { get; set; } = 100;
+    /// <summary>
+    /// Manually sets the number of characters shown in a post stub for posts with thumbnails
+    /// Defaults to 80
+    /// </summary>
+    [Parameter]
+    public int PostWithThumbStubLength { get; set; } = 80;
+    /// <summary>
+    /// The string title used in the Title tag at the top of the list
+    /// defaults to string.Empty which causes the title tag not to be rendered
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+    /// <summary>
+    /// Allowable css class for a regular list
+    /// </summary>
+    public const string BlogPosts = "blog-posts";
+    /// <summary>
+    /// Allowable css class for sidebar lists
+    /// </summary>
+    public const string BlogPostsThin = "blog-posts-thin";
+
+    #endregion
+
+    /// <summary>
+    /// Tallies the number of times a mini tool box event is fired on the list
+    /// </summary>
+    public int Tally { get; set; } = default!;
+
+    /// <summary>
+    /// Handles the media query event which fires when the max-width 960px breakpoint is met
+    /// and modifies post stub lengths accordingly
+    /// </summary>
+    /// <param name="matches"></param>
+    private void OnChange(bool matches)
+    {
+        if(!matches && TemplateClass == BlogPosts)
+        {
+            PostWithThumbStubLength = 200;
+        }
+        else
+        {
+            PostWithThumbStubLength = 80;
+            PostStubLength = 150;
+        }
+    }
+
+    /// <summary>
+    /// Handles the click events from mini tool box components
+    /// and force updates the component to reflect changes in the post status
+    /// </summary>
+    protected void OnMiniToolBoxStatusChange()
+    {
+        StateHasChanged();
+        Tally++;
+    }
+}
+

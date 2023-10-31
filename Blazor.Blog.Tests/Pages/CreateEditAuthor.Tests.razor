@@ -1,0 +1,175 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render create author")]
+    public void ShouldRenderCreateAuthor()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CreateAuthorUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>();
+        var title = cut.Find("h3.title");
+
+        // Assert
+        Assert.Contains("Create", title.InnerHtml);
+    }
+
+    [Fact(DisplayName = "Should render edit author")]
+    public void ShouldRenderEditAuthor()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var author = arrangeResult.RandomPostDto.List.Select(x => x.Author).First();
+        var url = NavUrlHelpers.EditAuthorUrl + author.AuthorId;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>(parameters =>
+            parameters.Add(p => p.Id, author.AuthorId));
+        var handles = ActHelpers.GetCreateEditAuthorHandlesInstances(cut);
+
+        // Assert
+        Assert.Contains("Edit", handles.TitleTag!.InnerHtml);
+        Assert.Equal(author.AuthorName, handles.AuthorNameInput!.Value);
+        Assert.NotNull(handles.AuthorIcon);
+    }
+
+    [Fact(DisplayName = "Should redirect to create author if a bad author id is provided")]
+    public void ShouldRedirectToCreateAuthorIfABadAuthorIdIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var url = NavUrlHelpers.EditAuthorUrl + "-5";
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>(parameters =>
+            parameters.Add(p => p.Id, -5));
+
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.CreateAuthorUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should create an author")]
+    public async Task ShouldCreateAnAuthor()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CreateAuthorUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>();
+        var handlers = ActHelpers.GetCreateEditAuthorHandlesInstances(cut);
+        var author = new Author
+            {
+                AuthorId = 100,
+                AuthorName = "author-name",
+                AuthorIcon = "author-icon"
+            };
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Author, author));
+        var id = cut.Instance.Author.AuthorId;
+        handlers.SaveButton!.Click();
+        var savedAuthor = await arrangeResult.AuthorServiceEF.GetAuthorByID(id);
+
+        // Assert
+        Assert.Equal(cut.Instance.Author, savedAuthor);
+    }
+
+    [Fact(DisplayName = "Should update an author")]
+    public async Task ShouldUpdateAnAuthor()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var author = arrangeResult.RandomPostDto.List.Select(x => x.Author).First();
+        var url = NavUrlHelpers.EditAuthorUrl + author!.AuthorId.ToString();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>(parameters =>
+            parameters.Add(p => p.Id, author.AuthorId));
+        var handles = ActHelpers.GetCreateEditAuthorHandlesInstances(cut);
+
+        cut.Instance.Author.AuthorName = "author-title";
+        cut.Instance.Author.AuthorIcon = "author-icon";
+        handles.SaveButton!.Click();
+        var updatedAuthor = await arrangeResult.AuthorServiceEF.GetAuthorByID(author.AuthorId);
+
+        // Assert
+        Assert.True(updatedAuthor.AuthorName == "author-title");
+        Assert.True(updatedAuthor.AuthorIcon == "author-icon");
+    }
+
+    [Fact(DisplayName = "Should cancel an update")]
+    public async Task ShouldCancel()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var newAuthor = new Author
+            {
+                AuthorId = 100,
+                AuthorName = "author-name",
+                AuthorIcon = "author-icon"
+            };
+        await arrangeResult.AuthorServiceEF.CreateAuthor(newAuthor);
+        var url = NavUrlHelpers.EditAuthorUrl + newAuthor.AuthorId.ToString();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditAuthor>(parameters =>
+            parameters.Add(p => p.Id, newAuthor.AuthorId));
+        var handles = ActHelpers.GetCreateEditAuthorHandlesInstances(cut);
+        handles.CancelButton!.Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.ManageAuthorsUrlStub, navMan.Uri);
+    }
+}

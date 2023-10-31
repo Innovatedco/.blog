@@ -1,0 +1,80 @@
+﻿@inherits TestContext;
+@using static Blazor.Blog.Helpers.NavUrlHelpers;
+
+@code {
+    [Fact(DisplayName = "Should display a twitter sharing url including an encoded local url")]
+    public void ShouldDisplayATwitterSharingUrlIncludingAnEncodedLocalUrl()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<SocialSharing>(parameters =>
+            parameters.Add(p => p.Post, post)
+        );
+        var twitterLink = cut.Find("a.twitter");
+        var href = twitterLink.Attributes["href"]!.Value;
+
+        // Assert
+        Assert.Contains(TwitterUrl, href);
+        Assert.Contains(cut.Instance.Url, href);
+    }
+
+    [Fact(DisplayName = "Should display a reddit sharing url including an encoded local url")]
+    public void ShouldDisplayARedditSharingUrlIncludingAnEncodedLocalUrl()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<SocialSharing>(parameters =>
+            parameters.Add(p => p.Post, post)
+        );
+        var redditLink = cut.Find("a.reddit");
+        var href = redditLink.Attributes["href"]!.Value;
+
+        // Assert
+        Assert.Contains(RedditUrl, href);
+        Assert.Contains(cut.Instance.Url, href);
+    }
+
+    [Fact(DisplayName = "Should display a linkedin sharing url including an encoded local url")]
+    public void ShouldDisplayALinkedInSharingUrlIncludingAnEncodedLocalUrl()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<SocialSharing>(parameters =>
+            parameters.Add(p => p.Post, post)
+        );
+        var LinkedInLink = cut.Find("a.linkedin");
+        var href = LinkedInLink.Attributes["href"]!.Value;
+
+        // Assert
+        Assert.Contains(LinkedinUrl, href);
+        Assert.Contains(cut.Instance.Url, href);
+    }
+
+    [Fact(DisplayName = "Should display a facebook sharing url including an encoded local url")]
+    public void ShouldDisplayAFacebookSharingUrlIncludingAnEncodedLocalUrl()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<SocialSharing>(parameters =>
+            parameters.Add(p => p.Post, post)
+        );
+        var facebookLink = cut.Find("a.facebook");
+        var href = facebookLink.Attributes["href"]!.Value;
+
+        // Assert
+        Assert.Contains(FacebookUrl, href);
+        Assert.Contains(cut.Instance.Url, href);
+    }
+}

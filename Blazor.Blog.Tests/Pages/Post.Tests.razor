@@ -1,0 +1,176 @@
+﻿@using Moq;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render if a valid url parameter is provided")]
+    public void ShouldRenderIfAValidUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).First();
+        var urlStub = post.NormalizedTitle;
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+        }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, post.NormalizedTitle));
+        var postTag = cut.Find("#blog-post");
+        var title = cut.Find("h1");
+
+        // Assert
+        Assert.NotNull(postTag);
+        Assert.Equal(post.Title, title.InnerHtml);
+    }
+
+    [Fact(DisplayName = "Should rerender if a new url parameter is provided")]
+    public void ShouldReRenderIfANewUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var posts = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).ToList();
+        var post = posts.First();
+        var post2 = posts.Skip(1).Take(1).First();
+        var urlStub = post.NormalizedTitle;
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, post.NormalizedTitle));
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Url, post2.NormalizedTitle));
+        // Assert
+        Assert.Contains(post2.Title, cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should not update if the same url parameter is provided")]
+    public void ShouldNotUpdateIfTheSameUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).First();
+        var urlStub = post.NormalizedTitle;
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, post.NormalizedTitle));
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Url, post.NormalizedTitle));
+        // Assert
+        Assert.True(cut.Instance.IsRefresh);
+    }
+
+    [Fact(DisplayName = "Should navigate to not-found if an invalid url parameter is provided")]
+    public void ShouldNavigateToNotFoundIfAnInvalidUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).First();
+        var urlStub = "oops";
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, urlStub));
+
+        // Assert
+        Assert.True(cut.Instance.NotFound);
+    }
+
+    [Fact(DisplayName = "Should highlight code snippets if a valid url parameter is provided")]
+    public async Task ShouldHighlightCodeSnippetsIfAValidUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).First();
+        var title = "post with code snippet";
+        var normalizedtitle = NavUrlHelpers.NormalizePostTitleForUrl(title);
+        var newPost = new BlogPost
+            {
+                Title = title,
+                BlogCategoryId = post.BlogCategoryId,
+                Post = HtmlHelpers.MockHtmlWithCode,
+                AuthorId = 1,
+                Created = DateTime.Now,
+                Updated = DateTime.Now,
+                NormalizedTitle = normalizedtitle,
+                ThumbnailUrl = post.ThumbnailUrl,
+            };
+        await arrangeResult.BlogPostServiceEF.CreateBlogPost(newPost);
+        var urlStub = normalizedtitle;
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+        var loadJs = ctx.JSInterop.SetupVoid("loadJs");
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, normalizedtitle));
+        var invocations = ctx.JSInterop.Invocations;
+        // Assert
+        Assert.Equal(4, invocations.Where(x => x.Identifier == "loadJs").Count());
+    }
+
+    [Fact(DisplayName = "Should not highlight code snippets if a post without code is provided")]
+    public void ShouldNotHighlightCodeSnippetsIfAPostWithoutCodeIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).First();
+        var urlStub = post.NormalizedTitle;
+        var url = NavUrlHelpers.PostUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+        var loadJs = ctx.JSInterop.SetupVoid("loadJs");
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Post>(parameters => parameters.Add(p => p.Url, post.NormalizedTitle));
+        var invocations = ctx.JSInterop.Invocations;
+
+        // Assert
+        Assert.Empty(invocations.Where(x => x.Identifier == "loadJs"));
+    }
+    }
+}

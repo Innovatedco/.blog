@@ -1,0 +1,37 @@
+﻿@page "/gcats"
+@attribute [Authorize]
+@inject IDbContextFactory<DataContext> dbFactory
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            // var context = dbFactory.CreateDbContext();
+            // var categories = new List<BlogCategory>();
+            // categories.Add(new BlogCategory { CategoryName = "Cloud", Icon = "fa-cloud" });
+            // categories.Add(new BlogCategory { CategoryName = "Software Development", Icon = "fa-laptop-code" });
+            // categories.Add(new BlogCategory { CategoryName = "Pro Tips", Icon = "fa lightbulb" });
+            // categories.Add(new BlogCategory { CategoryName = "Database", Icon = "fa-database" });
+            // categories.Add(new BlogCategory { CategoryName = "Thoughts", Icon = "fa-comments" });
+            // categories.Add(new BlogCategory { CategoryName = "Code Snippets", Icon = "fa-terminal" });
+            // categories.Add(new BlogCategory { CategoryName = "Opinions", Icon = "fa solid fa-gavel" });
+            // categories.Add(new BlogCategory { CategoryName = "Insights", Icon = "fa-creative-commons-sampling" });
+            // categories.Add(new BlogCategory { CategoryName = "Coding", Icon = "fa-bug-slash" });
+            // categories.Add(new BlogCategory { CategoryName = "Trends & News", Icon = "fa-radio" });
+            // categories.Add(new BlogCategory { CategoryName = "Personal Challenges", Icon = "fa-person-running" });
+            // categories.Add(new BlogCategory { CategoryName = "C#", Icon = "fa-microsoft" });
+            // categories.Add(new BlogCategory { CategoryName = "Blazor", Icon = "fa-html5" });
+            // categories.Add(new BlogCategory { CategoryName = "ASP.NET MVC", Icon = "fa-file-code" });
+            // categories.Add(new BlogCategory { CategoryName = "Typescript", Icon = "fa-text-height" });
+            // categories.Add(new BlogCategory { CategoryName = "Node.js", Icon = "fa-node-js" });
+            // categories.Add(new BlogCategory { CategoryName = "Javascript", Icon = "fa-js" });
+
+            // foreach (var cat in categories)
+            // {
+            //     context.Add(cat);
+            // }
+            // context.SaveChanges();
+        }
+    }
+}

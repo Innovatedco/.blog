@@ -1,0 +1,130 @@
+﻿@page "/createcategory"
+@page "/editcategory/{url}"
+@inherits DataPage
+@inject NavigationManager navMan
+@attribute [Authorize]
+<EditMenu />
+
+<section>
+    <div id="editor">
+        <EditForm Model="@Category" OnValidSubmit="@Submit">
+            <h3 class="title">@title</h3>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="my-3 vw-100">
+                <RadzenFormField Text="Category Title" Variant="@variant" Style="width:300px">
+                    <RadzenTextBox Name="category-name" @bind-Value="Category.CategoryName" Style="width:300px" Placeholder="Post Title" />
+                </RadzenFormField>
+                <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
+                <RadzenFormField Text="Category Icon" Variant="@variant" Style="width:300px">
+                    <RadzenTextBox Name="category-icon" @bind-Value="Category.Icon" Style="width:300px" Placeholder="Icon" />
+                </RadzenFormField>
+                <ValidationMessage For="() => Category.Icon" class="text-danger" />
+            </RadzenStack>
+            <button name="save" type="submit" class="btn btn-primary form-check form-control mt-1 w-15">Save</button>
+            @if (IsUpdate && Category.BlogPosts!.Count == 0)
+            {
+                <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning form-check form-control mt-1 w-15 ml-1">Cancel</button>
+                <button name="delete" type="button" class="btn btn-danger form-check form-control mt-1 w-15" data-toggle="modal" data-target="#myModal">Delete</button>
+            }
+        </EditForm>        
+    </div>
+</section>
+<div class="mt-5">
+@if (Posts != null && Posts.Count() > 0)
+{
+    <h3>Posts in category</h3><br />
+    <PostList Posts="Posts" />
+}
+</div>
+
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title text-danger">Warning!</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                You are about to permanently delete a category, this cannot be undone, do you really want to do this?
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+                <button name="delete-final" @onclick=Delete type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Url { get; set; }
+    public string? title { get; set; } = "Create blog category";
+    [Parameter]
+    public BlogCategory Category { get; set; } = new BlogCategory();
+    Variant variant = Variant.Outlined;
+    private bool IsUpdate = false;
+    public IEnumerable<BlogPost> Posts { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (!String.IsNullOrEmpty(Url))
+            {
+                var result = await BlogCategoryService.GetCategoryByUrl(Url);
+                if (result != null)
+                {
+                    title = "Edit blog category";
+                    Category = result;
+                    IsUpdate = true;
+                    if (Category.BlogPosts != null) Posts = (IEnumerable<BlogPost>)Category.BlogPosts;
+                    await InvokeAsync(StateHasChanged);
+                }
+                else navMan.NavigateTo(NavUrlHelpers.CreateCategoryUrlStub, true);
+            }
+            else
+            {
+                title = "Create blog category";
+                Category = new BlogCategory();
+                IsUpdate = false;
+            }
+        }
+    }
+
+    private async Task Submit()
+    {
+        Category.CategoryNameNormalized = NavUrlHelpers.NormalizePostTitleForUrl(Category.CategoryName);
+
+        if (IsUpdate)
+        {
+            await BlogCategoryService.UpdateBlogCategory(Category);
+        }
+        else
+        {
+            await BlogCategoryService.CreateBlogCategory(Category);
+        }
+        navMan.NavigateTo(NavUrlHelpers.ManageCategoriesUrlStub, true);
+    }
+
+    private void Cancel()
+    {
+        navMan.NavigateTo(NavUrlHelpers.ManageCategoriesUrlStub, true);
+    }
+
+    private async Task Delete()
+    {
+        if (Category != null && IsUpdate && Category.BlogPosts!.Count == 0)
+        {
+            await BlogCategoryService.DeleteBlogCategory(Category);
+            navMan.NavigateTo(NavUrlHelpers.ManageCategoriesUrlStub, true);
+        }
+    }
+}

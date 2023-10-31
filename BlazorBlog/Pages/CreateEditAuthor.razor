@@ -1,0 +1,99 @@
+﻿@page "/createauthor"
+@page "/editauthor/{Id:int}"
+@inherits DataPage
+@inject NavigationManager navMan
+@attribute [Authorize]
+<EditMenu />
+
+<section>
+    <div id="editor">
+        <EditForm Model="@Author" OnValidSubmit="@Submit">
+            <h3 class="title">@title</h3>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="my-3 vw-100">
+                <RadzenFormField Text="Author Name" Variant="@variant" Style="width:300px">
+                    <RadzenTextBox Name="author-name" @bind-Value="Author.AuthorName" Style="width:300px" Placeholder="Name" />
+                </RadzenFormField>
+                <RadzenFormField Text="Author Icon" Variant="@variant" Style="width:300px">                    
+                    <RadzenUpload Accept="image/*" Url="upload/avatar" ChooseText="Select Image" @bind-value="Author.AuthorIcon" Complete="@((args) => OnUploadCompleted(args))" />
+                        <Avatar Url="@Author.AuthorIcon" Classes="mr-1"/>
+                </RadzenFormField>
+            </RadzenStack>
+            
+            <button name="save" type="submit" class="btn btn-primary form-check form-control mt-1 w-15">Save</button>
+            <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning form-check form-control mt-1 w-15 ml-1">Cancel</button>
+        </EditForm>        
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    public string? title { get; set; } = "Create Author";
+    [Parameter]
+    public Author Author { get; set; } = new Author();
+    Variant variant = Variant.Outlined;
+    private bool IsUpdate = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Id.HasValue)
+            {
+                var result = await AuthorService.GetAuthorByID(Id.Value);
+                if (result != null)
+                {
+                    title = "Edit Author";
+                    Author = result;
+                    IsUpdate = true;
+                    await InvokeAsync(StateHasChanged);
+                }
+                else navMan.NavigateTo(NavUrlHelpers.CreateAuthorUrlStub, true);
+            }
+            else
+            {
+                title = "Create Author";
+                Author = new Author();
+                IsUpdate = false;
+            }
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (IsUpdate)
+        {
+            await AuthorService.UpdateAuthor(Author);
+        }
+        else
+        {
+            await AuthorService.CreateAuthor(Author);
+        }
+        navMan.NavigateTo(NavUrlHelpers.ManageAuthorsUrlStub, true);
+    }
+
+    private void OnInvalidSubmit(EditContext editContext)
+    {
+        var model = editContext.Model;
+        editContext.Validate();
+    }
+
+    private void Cancel()
+    {
+        navMan.NavigateTo(NavUrlHelpers.ManageAuthorsUrlStub, true);
+    }
+
+    private async Task OnUploadCompleted(UploadCompleteEventArgs args)
+    {
+        var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true
+            };
+
+        var avatarResult = JsonSerializer.Deserialize<AvatarUploadResult>(args.RawResponse, options);
+        Author.AuthorIcon = avatarResult.url;
+        await InvokeAsync(StateHasChanged);
+    }
+}

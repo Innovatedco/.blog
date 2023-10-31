@@ -1,0 +1,176 @@
+﻿@typeparam T
+
+@if(Pager != null && Pager!.TotalPages > 1)
+{
+    <div class="pager @Css">
+        <ul class="pagination">
+            <li class="@(PreviousClasses.ClassString)"><a @onclick="() => PagerClick(Prev)" class="page-link previous">Previous</a></li>
+                @for (var i = 1; i <= Pager.TotalPages; i++)
+                {
+                    int pageNumber = i;
+                    if(pageNumber == Pager.CurrentPage)
+                    {
+                        <li class="page-item active"><span class="page-link">@i</span></li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a @onclick="() => PagerClick(pageNumber)" class="page-link">@i</a></li>
+                    }                
+                }
+            <li class="@(NextClasses.ClassString)"><a @onclick="() => PagerClick(Next)" class="page-link next">Next</a></li>
+        </ul>
+    </div>
+}
+
+@code {
+    #region Member variables
+
+    /// <summary>
+    /// Sets additonal css classes on the page div 
+    /// </summary>
+    [Parameter]
+    public string Css { get; set; } = string.Empty;
+    /// <summary>
+    /// Sets the page size
+    /// </summary>
+    [Parameter]
+    public int PageSize { get; set; }
+    /// <summary>
+    /// Sets the list of posts which will be managed by the pager
+    /// </summary>
+    /// 
+    [Parameter]
+    public IEnumerable<T> List { get; set; } = default!;
+    /// <summary>
+    /// Sets the PageModel used to calculate paging operations
+    /// </summary>
+    public PagerModelGeneric<T>? Pager { get; set; } = default!;
+    /// <summary>
+    /// Allowable next parameter for determining the direct of a page event
+    /// </summary>
+    public const string Next = "next";
+    /// <summary>
+    /// Allowable previous parameter for determining the direct of a page event
+    /// </summary>
+    public const string Prev = "prev";
+    /// <summary>
+    /// Subscribable event handler for page changing
+    /// </summary>
+    [Parameter]
+    public EventCallback<PagerModelGeneric<T>> OnPagingChanged { get; set; }
+    /// <summary>
+    /// Sets the list of items available to the pager after a filter event occurs
+    /// </summary>
+    public IEnumerable<T> FilteredItemList { get; set; } = default!;
+    public CssClassHandler PreviousClasses = new CssClassHandler("page-item");
+    public CssClassHandler NextClasses = new CssClassHandler("page-item");
+
+    #endregion
+
+    /// <summary>
+    /// Initializes the Pager with the default list
+    /// using the PageSize to configure the pager model
+    /// </summary>
+    /// <param name="list"></param>
+    public void Initialize(IEnumerable<T> list)
+    {
+        List = list;
+        if (PageSize != 0)
+        {
+            Pager = new PagerModelGeneric<T>(List, PageSize);
+        }
+        else Pager = new PagerModelGeneric<T>(List);
+        SetClasses();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Handles the click event on a numbered page button
+    /// </summary>
+    /// <param name="page"></param>
+    /// <returns></returns>
+    public async Task PagerClick(int page)
+    {
+        Pager!.SetPage(page);
+        SetClasses();
+        await OnPagingChanged.InvokeAsync(Pager);
+    }
+
+    /// <summary>
+    /// Handles the click event of the next and previous buttons
+    /// </summary>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task PagerClick(string direction)
+    {
+        if (direction == Next) Pager!.Next();
+        else if (direction == Prev) Pager!.Prev();
+        else throw new Exception("unhandled pager command");
+        SetClasses();
+        await OnPagingChanged.InvokeAsync(Pager);
+    }
+
+    /// <summary>
+    /// ONLY works for BlogPost lists!!
+    /// </summary>
+    /// <param name="statusType"></param>
+    /// <param name="allList"></param>
+    /// <returns></returns>
+    public async Task Filter(string statusType, IEnumerable<T> allList)
+    {
+        if (BlogPostStatus.StatusTypes.Contains(statusType) && typeof(T) == typeof(BlogPost))
+        {
+            var allListCast = (IEnumerable<BlogPost>) allList;
+            switch (statusType)
+            {
+                case BlogPostStatus.All:
+                    FilteredItemList = allList;
+                    break;
+                case BlogPostStatus.Drafts:
+                    FilteredItemList = (IEnumerable<T>) allListCast.Where(x => !x.Published);
+                    break;
+                case BlogPostStatus.Deleted:
+                    FilteredItemList = (IEnumerable<T>) allListCast.Where(x => x.Archived);
+                    break;
+                case BlogPostStatus.Published:
+                    FilteredItemList = (IEnumerable<T>)allListCast.Where(x => !x.Archived && x.Published);
+                    break;
+            }
+            if (PageSize != 0)
+            {
+                Pager = new PagerModelGeneric<T>(FilteredItemList, PageSize);
+            }
+            else Pager = new PagerModelGeneric<T>(FilteredItemList);
+            SetClasses();
+            await InvokeAsync(StateHasChanged);
+            await OnPagingChanged.InvokeAsync(Pager);
+        }
+    }
+
+    /// <summary>
+    /// Handles a change in page size passed from the parent
+    /// </summary>
+    /// <param name="pageSize"></param>
+    /// <param name="allList"></param>
+    /// <returns></returns>
+    public async Task ChangePageSize(int pageSize, IEnumerable<T> allList)
+    {
+        PageSize = pageSize;
+        Pager = new PagerModelGeneric<T>(allList, PageSize);
+        SetClasses();
+        await InvokeAsync(StateHasChanged);
+        await OnPagingChanged.InvokeAsync(Pager);
+    }
+
+    /// <summary>
+    /// Sets the css classes for enabling/disabling the prev/next pager buttons
+    /// </summary>
+    private void SetClasses()
+    {
+        if (Pager!.CurrentPage == Pager.FirstPage) PreviousClasses.AddClass("disabled");
+        else PreviousClasses.RemoveClass("disabled");
+        if (Pager!.CurrentPage == Pager.LastPage) NextClasses.AddClass("disabled");
+        else NextClasses.RemoveClass("disabled");
+    }
+}

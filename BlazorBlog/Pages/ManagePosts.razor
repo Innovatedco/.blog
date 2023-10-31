@@ -1,0 +1,91 @@
+﻿@page "/manageposts"
+@attribute [Authorize]
+@inherits DataPage
+<EditMenu />
+<h3>Manage Posts</h3>
+<RadzenFormField Component="post-status" Text="Post status" class="mb-2">
+    <RadzenDropDown id="post-status" class="my-2" @bind-Value="SortType" Data="BlogPostStatus.StatusTypes" Change="StatusTypeChanged"/>
+</RadzenFormField>
+<RadzenFormField Component="post-status" Text="Items per page" class="mb-2">
+    <RadzenDropDown id="page-size" class="my-2" @bind-Value="PageSize" Data="new int[] {1,2,3,4,5,6,7,8,9,10}" Change="PageSizeChanged" />
+</RadzenFormField>
+<PostList Posts=@blogPosts PostStubLength="300" PostWithThumbStubLength="280" />
+<PagerComponentGeneric @ref="pagerComponentGeneric" T="BlogPost" PageSize="PageSize" OnPagingChanged="PageChanged" List="@blogPosts" />
+
+@code {
+    #region Member variables
+    /// <summary>
+    /// The currently displayed blog posts
+    /// </summary>
+    private IEnumerable<BlogPost> blogPosts { get; set; } = default!;
+    /// <summary>
+    /// All the blog posts
+    /// </summary>
+    private IEnumerable<BlogPost> allPosts { get; set; } = default!;
+
+    /// <summary>
+    /// Handle for the pager component required for initialization
+    /// </summary>
+    public PagerComponentGeneric<BlogPost> pagerComponentGeneric { get; set; } = default!;
+    /// <summary>
+    /// Sets the sort type of the status drop down
+    /// </summary>
+    public string SortType { get; set; } = BlogPostStatus.All;
+    /// <summary>
+    /// Sets the page size
+    /// </summary>
+    public int PageSize { get; set; } = 2;
+    #endregion
+
+    /// <summary>
+    /// Initializes page variables and the pager if required
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            allPosts = await BlogPostService.GetAllBlogPostsForEditor();
+            if (allPosts != null && allPosts.Any())
+            {
+                pagerComponentGeneric.Initialize(allPosts);
+                blogPosts = allPosts.Take(pagerComponentGeneric.PageSize).ToList();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles the page changed event triggered by changing a page via the pager
+    /// </summary>
+    /// <param name="pager"></param>
+    /// <returns></returns>
+    protected async Task PageChanged(PagerModelGeneric<BlogPost> pager)
+    {
+        blogPosts = pager.CurrentItemList!;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handles the status type event triggered by the status dropdown
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task StatusTypeChanged(object value)
+    {
+        var status = (string) value;
+        await pagerComponentGeneric.Filter(status, allPosts);
+    }
+
+    /// <summary>
+    /// Handles the page size changed event triggered by the page size drop down
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task PageSizeChanged(object value)
+    {
+        var pageSize = (int)value;
+        await pagerComponentGeneric.ChangePageSize(pageSize, allPosts);
+    }
+}

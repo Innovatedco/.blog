@@ -1,0 +1,84 @@
+﻿@page "/category/{url}"
+@inherits DataPage
+@inject NavigationManager navMan
+
+<PageTitle>@SiteName | @blogCategory.CategoryName</PageTitle>
+<HeadContent>
+    <HeadTags BlogCategory=@blogCategory/>
+</HeadContent>
+<EditMenu Category="blogCategory" />
+<div id="category">
+<h1>@(blogCategory.CategoryName)</h1>
+<PostList Posts="Posts" PostStubLength="300" PostWithThumbStubLength="280"/>
+<PagerComponentGeneric @ref="pagerComponentGeneric" T="BlogPost" PageSize="5" OnPagingChanged="PageChanged" List="@Posts"/>
+</div>
+@code {
+    #region Member Variables
+    [Parameter]
+    public string Url { get; set; } = string.Empty;
+    private string prevUrl { get; set; } = default!;
+    IEnumerable<BlogPost>? Posts { get; set; }
+    BlogCategory blogCategory { get; set; } = new BlogCategory();
+    private PagerComponentGeneric<BlogPost> pagerComponentGeneric { get; set; } = default!;
+    public bool NotFound { get; private set; } = default!;
+    public bool IsRefresh { get; private set; } = default!;
+    #endregion
+
+    /// <summary>
+    /// Checks whether the page url has been previously called 
+    /// and then renders, rerenders or not depending on the status  
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            prevUrl = Url;
+            await InitializeCategoryVariables(Url);
+        }
+        else
+        {
+            if (Url != prevUrl)
+            {
+                await InitializeCategoryVariables(Url);
+                prevUrl = Url;
+                IsRefresh = false;
+            }
+            else IsRefresh = true;
+        }
+    }
+
+    /// <summary>
+    /// Initializes the page variables, this happens after render as URL parameters are not set
+    /// until this time in the component lifecycle. Also, @ref elements have been assigned 
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    private async Task InitializeCategoryVariables(string url)
+    {
+        var posts = await BlogPostService.GetBlogPostsByCategory(Url!);
+        if(posts != null && posts.Any())
+        {
+            pagerComponentGeneric.Initialize(posts);
+            Posts = posts.Take(pagerComponentGeneric.PageSize).ToList();
+            blogCategory = Posts.First().Category!;
+            StateHasChanged();
+            NotFound = false;
+        }
+        else
+        {
+            NotFound = true;
+            navMan.NavigateTo("not-found");
+        }
+    }
+
+    /// <summary>
+    /// Handles the page changed event of the PagerModelGeneric component
+    /// </summary>
+    /// <param name="pager"></param>
+    protected void PageChanged(PagerModelGeneric<BlogPost> pager)
+    {
+        Posts = pager.CurrentItemList;
+    }
+}

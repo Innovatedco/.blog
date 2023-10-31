@@ -1,0 +1,11 @@
+﻿@if(Url != null)
+{
+    <img src="@Url" class="avatar@(string.IsNullOrEmpty(Classes) ? string.Empty : " " + Classes)"/>
+}
+
+@code {
+    [Parameter]
+    public string Url { get; set; } = default!;
+    [Parameter]
+    public string Classes { get; set; } = default!;
+}

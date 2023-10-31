@@ -1,0 +1,11 @@
+﻿@using static Microsoft.AspNetCore.WebUtilities.QueryHelpers;
+@inject NavigationManager navMan;
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        var current = navMan.ToBaseRelativePath(navMan.Uri);
+        var query = new Dictionary<string, string>();
+        query.Add("returnUrl", current.ToString()!);
+        navMan.NavigateTo(AddQueryString("/account/login", query!), true);
+    }
+}

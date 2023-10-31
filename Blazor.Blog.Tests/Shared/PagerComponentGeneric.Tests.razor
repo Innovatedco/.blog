@@ -1,0 +1,261 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should not render if a valid list with at least one item is not provided")]
+    public async Task ShouldNotRenderIfAValidListISNotProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var empty = (IEnumerable<BlogPost>) new List<BlogPost>();
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters => parameters
+            .Add(p => p.List, empty)
+        );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(empty));
+
+        // Assert
+        Assert.Empty(cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should initialize when list is received")]
+    public async Task ShouldInitializeWhenListIsReceived()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters => parameters
+            .Add(p => p.List, dto.List)
+        );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+        var pager = cut.Instance.Pager;
+        var pageItemCount = cut.FindAll("li.page-item").Count;
+        var count = cut.Instance.Pager!.TotalPages + 2;
+
+        // Assert
+        Assert.Equal(dto.List, pager!.ItemList);
+        Assert.Equal(count, pageItemCount);
+    }
+
+    [Fact(DisplayName = "Should initialize with a page size if provided")]
+    public async Task ShouldInitializeWithAPageSizeIfProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.PageSize, 2)
+        );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+        var pager = cut.Instance.Pager;
+
+        // Assert
+        Assert.Equal(dto.List, pager!.ItemList);
+        // defaults to 5 if not provided
+        Assert.Equal(pager.PageSize, cut.Instance.PageSize);
+    }
+
+    [Fact(DisplayName = "Should page if the next button is clicked")]
+    public async Task ShouldPageIfTheNextButtonIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var pageChanged = false;
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+    );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+        var pager = cut.Instance.Pager;
+        var initialPage = pager!.CurrentPage;
+        var firstPage = pager!.FirstPage;
+        cut.Find("a.next").Click();
+        var finalPage = pager!.CurrentPage;
+
+        // Assert
+        Assert.True(pageChanged);
+        Assert.Equal(firstPage, initialPage);
+        Assert.True(finalPage == initialPage + 1);
+    }
+
+    [Fact(DisplayName = "Should page if the previous button is clicked")]
+    public async Task ShouldPageIfThePreviousButtonIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var pageChanged = false;
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+        );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+        var pager = cut.Instance.Pager;
+        var initialPage = pager!.CurrentPage;
+        var firstPage = pager!.FirstPage;
+        cut.Find("a.next").Click();
+        cut.Find("a.next").Click();
+        cut.Find("a.previous").Click();
+        var finalPage = pager!.CurrentPage;
+
+        // Assert
+        Assert.True(pageChanged);
+        Assert.Equal(firstPage, initialPage);
+        Assert.True(finalPage == initialPage + 1);
+    }
+
+    [Fact(DisplayName = "Should page if a page button is clicked")]
+    public async Task ShouldPageIfAPageButtonIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var pageChanged = false;
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+    );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+        var pager = cut.Instance.Pager;
+        var initialPage = pager!.CurrentPage;
+        var firstPage = pager!.FirstPage;
+        cut.Find("a.next").Click();
+        var pageLinks = cut.FindAll("a.page-link");
+        pageLinks[1].Click();
+        var finalPage = pager!.CurrentPage;
+
+        // Assert
+        Assert.True(pageChanged);
+        Assert.Equal(firstPage, initialPage);
+        Assert.True(finalPage == initialPage);
+    }
+
+    [Fact(DisplayName = "Should throw an error if an invalid direction is provided")]
+    public async Task ShouldThoewIfAnInvalidDirectionIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+    );
+        await cut.InvokeAsync(() => cut.Instance.Initialize(dto.List));
+
+        // Assert
+        await Assert.ThrowsAsync<Exception>(() => cut.Instance.PagerClick("oops"));
+    }
+
+    [Fact(DisplayName = "Should page if filter is called")]
+    public async Task ShouldPageIfFilterIsCalled()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var pageChanged = false;
+
+        // Act/Assert
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+        );
+
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.All, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Published, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Drafts, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Deleted, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+    }
+
+    [Fact(DisplayName = "Should page if filter is called with page size")]
+    public async Task ShouldPageIfFilterIsCalledWithPageSize()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogPostHelpers.BuildRandomBlogPostsFixture();
+        var pageChanged = false;
+
+        // Act/Assert
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogPost>>(parameters =>
+            parameters.Add(p => p.List, dto.List)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+        );
+
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.All, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Published, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Drafts, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.Deleted, dto.List));
+        Assert.True(pageChanged);
+        pageChanged = false;
+    }
+
+    [Fact(DisplayName = "Should not page if filter is called on non blog post list")]
+    public async Task ShouldNotPageIfFilterIsCalledOnNonBlogPostList()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogCategoryHelpers.BuildBlogCategoriesFixture();
+        var pageChanged = false;
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogCategory>>(parameters =>
+            parameters.Add(p => p.List, dto)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+        );
+
+        //Assert
+        await cut.InvokeAsync(() => cut.Instance.Filter(BlogPostStatus.All, dto));
+        Assert.False(pageChanged);
+    }
+
+    [Fact(DisplayName = "Should not page if filter is called on non blog post list with invalid status")]
+    public async Task ShouldNotPageIfFilterIsCalledOnNonBlogPostListWithInvalidStatus()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var dto = BlogCategoryHelpers.BuildBlogCategoriesFixture();
+        var pageChanged = false;
+
+        // Act
+        var cut = ctx.RenderComponent<PagerComponentGeneric<BlogCategory>>(parameters =>
+            parameters.Add(p => p.List, dto)
+            .Add(p => p.PageSize, 2)
+            .Add(p => p.OnPagingChanged, () => { pageChanged = true; })
+        );
+
+        //Assert
+        await cut.InvokeAsync(() => cut.Instance.Filter("oops", dto));
+        Assert.False(pageChanged);
+    }
+}

@@ -1,0 +1,114 @@
+﻿@inject NavigationManager navMan
+@inject IBlogPostService blogPostService
+<div class="tool-box mt-1">
+    <button title="edit" @onclick="Edit" class="mr-2"><i class="fa-solid fa-pen-to-square text-primary m-auto"></i></button>
+    @if (Post.Published)
+    {
+        <button title="unpublish" @onclick="UnPublish" class="mr-2"><i class="fa-solid fa-download text-warning m-auto"></i></button>
+    }
+    else
+    {
+        <button title="publish" @onclick="Publish" class="mr-2"><i class="fa-solid fa-upload text-warning m-auto"></i></button>
+    }
+    @if(Post.Archived)
+    {
+        <button title="undelete" @onclick="UnDelete" class="mr-2"><i class="fa-solid fa-trash-arrow-up text-danger m-auto"></i></button>
+    }
+    else
+    {
+        <button title="delete" @onclick="Delete" class="mr-2"><i class="fa-solid fa-trash-can text-danger m-auto"></i></button>
+    }    
+</div>
+
+@code {
+    #region Member Variables
+    /// <summary>
+    /// Sets the BlogPost that the mini toolbox is rendered for
+    /// </summary>
+    [Parameter]
+    public BlogPost Post { get; set; } = default!;
+    /// <summary>
+    /// sets the callback method fired when the blogpost status changes
+    /// as a result of a toolbox action
+    /// </summary>
+    [Parameter]
+    public EventCallback OnStatusChanged { get; set; }
+    #endregion
+
+    /// <summary>
+    /// Handles the click event of the Edit button
+    /// redirects to the post specifi edit post url
+    /// </summary>
+    private void Edit()
+    {
+        // concatenates a url for the edit page of the blogpost
+        var editUrl = NavUrlHelpers.EditPostStub + Post.NormalizedTitle;
+        // navigates to the edit page
+        navMan.NavigateTo(editUrl, true);
+    }
+
+    /// <summary>
+    /// Handles the click event of the publish button
+    /// and updates the post to published status
+    /// the status change event is fired to ensure the UI is updated to reflect the change 
+    /// </summary>
+    private async Task Publish()
+    {
+        if(Post != null)
+        {
+            await blogPostService.PublishBlogPost(Post);
+            await Refresh();
+        }
+    }
+
+    /// <summary>
+    /// Handles the click event of the unpublish button
+    /// and updates the post to unpublished status
+    /// the status change event is fired to ensure the UI is updated to reflect the change
+    /// </summary>
+    private async Task UnPublish()
+    {
+        if (Post != null)
+        {
+            await blogPostService.DePublishBlogPost(Post);
+            await Refresh();
+        }
+    }
+
+    /// <summary>
+    /// Handles the click event of the delete button
+    /// and updates the post to Archived status
+    /// the status change event is fired to ensure the UI is updated to reflect the change
+    /// </summary>
+    private async Task Delete()
+    {
+        if (Post != null)
+        {
+            await blogPostService.ArchiveBlogPost(Post);
+            await Refresh();
+        }
+    }
+
+    /// <summary>
+    /// Handles the click event of the undelete button
+    /// and updates the post to Dearchived status
+    /// the status change event is fired to ensure the UI is updated to reflect the change
+    /// </summary>
+    private async Task UnDelete()
+    {
+        if (Post != null)
+        {
+            await blogPostService.DeArchiveBlogPost(Post);
+            await Refresh();
+        }
+    }
+
+    /// <summary>
+    /// Fires a status change event to update the UI
+    /// </summary>
+    /// <returns></returns>
+    private async Task Refresh()
+    {
+        await OnStatusChanged.InvokeAsync();
+    }
+}

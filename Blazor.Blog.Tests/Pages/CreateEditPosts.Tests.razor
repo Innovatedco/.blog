@@ -1,0 +1,209 @@
+﻿@using Radzen;
+@using Radzen.Blazor;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render create post")]
+    public void ShouldRenderCreatePost()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CreatePostUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>();
+        var title = cut.Find("h3.title");
+
+        // Assert
+        Assert.Contains("Create", title.InnerHtml);
+    }
+
+    [Fact(DisplayName = "Should render edit post")]
+    public void ShouldRenderEditPost()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.First();
+        var url = NavUrlHelpers.EditPostUrl + post.NormalizedTitle;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>(parameters =>
+            parameters.Add(p => p.Url, post.NormalizedTitle));
+        var handles = ActHelpers.GetCreateEditPostHandlesInstances(cut);
+
+        // Assert
+        Assert.Contains("Edit", handles.TitleTag!.InnerHtml);
+        Assert.Equal(post.Post, handles.HtmlEditor!.Value);
+        Assert.Equal(post.Title, handles.TitleInput!.Value);
+        var category = (BlogCategory)handles.CategoryDropdown!.SelectedItem;
+        Assert.Equal(post.BlogCategoryId, category.BlogCategoryId);
+        var author = (Author)handles.AuthorDropdown!.SelectedItem;
+        Assert.Equal(post.AuthorId, author.AuthorId);
+        Assert.Equal(post.Archived, handles.DeletedCheckbox!.Value);
+        Assert.Equal(post.Published, handles.PublishedCheckbox!.Value);
+    }
+
+    [Fact(DisplayName = "Should redirect to create post if a bad post reference is provided")]
+    public void ShouldRendirectToCreatePostIfABadPostReferenceIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var url = NavUrlHelpers.EditPostUrl + "oops";
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>(parameters =>
+            parameters.Add(p => p.Url, "oops"));
+
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.CreatePostUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should create a blog post")]
+    public async Task ShouldCreateABlogPost()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig {
+            UseData = true,
+            UseNavigation = true,
+            UseNavigationUri = NavUrlHelpers.CreatePostUrl,
+            UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+            UseRadzen = true
+        });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>();
+        var handlers = ActHelpers.GetCreateEditPostHandlesInstances(cut);
+        var category = arrangeResult.RandomPostDto.List.Select(x => x.Category).First();
+        var post = new BlogPost
+        {
+            BlogPostId = Guid.NewGuid(),
+            AuthorId = 1,
+            Title = "oops",
+            Post = "here's some text",
+            BlogCategoryId = category!.BlogCategoryId
+        };
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Post, post));
+        var id = cut.Instance.Post.BlogPostId;
+        handlers.SaveButton!.Click();
+        var savedPost = await arrangeResult.BlogPostServiceEF.GetBlogPostByID(id);
+
+        // Assert
+        Assert.Equal(cut.Instance.Post, savedPost);
+    }
+
+    [Fact(DisplayName = "Should update a blog post")]
+    public async Task ShouldUpdateABlogPost()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.First();
+        var url = NavUrlHelpers.EditPostUrl + post.NormalizedTitle;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>(parameters =>
+            parameters.Add(p => p.Url, post.NormalizedTitle));
+        var handles = ActHelpers.GetCreateEditPostHandlesInstances(cut);
+
+        cut.Instance.Post.Title = "title";
+        cut.Instance.Post.Post = "html";
+        handles.SaveButton!.Click();
+        var updatedPost = await arrangeResult.BlogPostServiceEF.GetBlogPostByID(post.BlogPostId);
+
+        // Assert
+        Assert.True(updatedPost.Title == "title");
+        Assert.True(updatedPost.Post == "html");
+
+    }
+
+    [Fact(DisplayName = "Should delete a blog post")]
+    public async Task ShouldDeleteABlogPost()
+    {
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.Where(x => x.Archived == false).First();
+        var url = NavUrlHelpers.EditPostUrl + post.NormalizedTitle;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>(parameters =>
+            parameters.Add(p => p.Url, post.NormalizedTitle));
+        var handles = ActHelpers.GetCreateEditPostHandlesInstances(cut);
+
+        cut.Instance.Post.Archived = true;
+        handles.DeleteButton!.Click();
+
+        var updatedPost = await arrangeResult.BlogPostServiceEF.GetBlogPostByUrl(post.NormalizedTitle);
+
+        // Assert
+        Assert.True(updatedPost.Archived);
+    }
+
+    [Fact(DisplayName = "Should cancel an update")]
+    public void ShouldCancel()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var post = arrangeResult.RandomPostDto.List.First();
+        var url = NavUrlHelpers.EditPostUrl + post.NormalizedTitle;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditPost>(parameters =>
+            parameters.Add(p => p.Url, post.NormalizedTitle));
+        var handles = ActHelpers.GetCreateEditPostHandlesInstances(cut);
+        handles.CancelButton!.Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.PostUrlStub, navMan.Uri);
+    }
+}

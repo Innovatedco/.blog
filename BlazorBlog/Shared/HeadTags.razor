@@ -1,0 +1,77 @@
+﻿@inject IConfiguration config
+
+@if(BlogPost != null)
+{
+    <meta name="description" content="@(siteNameStub + TextHelpers.FormatStub(BlogPost.Post, 200))" />
+    <link rel="canonical" href="@(postUrlBase + BlogPost.NormalizedTitle)" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="@BlogPost.Title" />
+    <meta property="og:description" content="@(siteNameStub + TextHelpers.FormatStub(BlogPost.Post, 200))" />
+    <meta property="og:url" content="@(postUrlBase + BlogPost.NormalizedTitle)" />
+    <meta property="og:site_name" content="@siteName" />
+    @if (BlogPost.ThumbnailUrl != string.Empty)
+    {
+        <meta property="og:image" content="@(blogUrlBase + BlogPost.ThumbnailUrl.Replace("small-",""))" />
+    }
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@(siteNameStub + BlogPost.Title)" />
+    <meta name="twitter:description" content="@(siteNameStub + TextHelpers.FormatStub(BlogPost.Post, 200))" />
+    @if (BlogPost.ThumbnailUrl != string.Empty)
+    {
+        <meta name="twitter:image" content="@(blogUrlBase + BlogPost.ThumbnailUrl.Replace("small-",""))" />
+    }
+} 
+else if(BlogCategory != null)
+{
+    <meta name="description" content="@(siteNameStub + BlogCategory.CategoryName)" />
+    <link rel="canonical" href="@(categoryUrlBase + BlogCategory.CategoryNameNormalized)" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@BlogCategory.CategoryName" />
+    <meta property="og:description" content="@(siteNameStub + BlogCategory.CategoryName)" />
+    <meta property="og:url" content="@(categoryUrlBase + BlogCategory.CategoryNameNormalized)" />
+    <meta property="og:site_name" content="@siteName" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@(siteNameStub + BlogCategory.CategoryName)" />
+    <meta name="twitter:description" content="@(siteNameStub + BlogCategory.CategoryName))" />
+}
+else
+{
+    <meta name="description" content="@tagLineStub" />
+    <link rel="canonical" href="@blogUrlBase" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@siteName" />
+    <meta property="og:description" content="@tagLineStub" />
+    <meta property="og:url" content="@blogUrlBase" />
+    <meta property="og:site_name" content="@siteName" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@siteName" />
+    <meta name="twitter:description" content="@tagLineStub" />
+}
+
+@code {
+    [Parameter]
+    public BlogPost BlogPost { get; set; } = default!;
+    [Parameter]
+    public BlogCategory BlogCategory { get; set; } = default!;
+    private string blogUrlBase { get; set; } = default!;
+    private string postUrlBase { get; set; } = default!;
+    private string categoryUrlBase { get; set; } = default!;
+    private string siteName { get; set; } = default!;
+    private string siteNameStub { get; set; } = default!;
+    private string tagLine { get; set; } = default!;
+    private string tagLineStub { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        blogUrlBase = config!["CustomSettings:ProdBlogUrl"]!;
+        postUrlBase = blogUrlBase + NavUrlHelpers.PostUrlStub;
+        categoryUrlBase = blogUrlBase + NavUrlHelpers.CategoryUrlStub;
+        siteName = config!["CustomSettings:SiteName"]!;
+        siteNameStub = siteName + " | ";
+        tagLine = config!["CustomSettings:TagLine"]!;
+        tagLineStub = siteNameStub + tagLine;
+    }
+}

@@ -1,0 +1,38 @@
+﻿@using System.Net;
+@using static Blazor.Blog.Helpers.NavUrlHelpers;
+
+<div class="social-sharing mt-1">
+<a class="mr-2 twitter" href="@(TwitterUrl + Url)"
+   target="_blank" rel="nofollow">
+    <i class="fa-brands fa-twitter"></i>
+</a>
+<a class="mr-2 reddit" href="@(RedditUrl + Url)"
+   target="_blank" rel="nofollow">
+    <i class="fa-brands fa-reddit"></i>
+</a>
+<a class="mr-2 linkedin" href="@(LinkedinUrl + Url)"
+   target="_blank" rel="nofollow">
+    <i class="fa-brands fa-linkedin"></i>
+</a>
+<a class="mr-2 facebook" href="@(FacebookUrl + Url)"
+   target="_blank" rel="nofollow">
+    <i class="fa-brands fa-facebook"></i>
+</a>
+</div>
+@code {
+    [Parameter]
+    public BlogPost Post { get; set; } = default!;
+    /// <summary>
+    /// The encoded page URL used for sharing in the query string
+    /// </summary>
+    public string Url { get; set; } = default!;
+
+    /// <summary>
+    /// Initializes the base url for social sharing
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        // Encodes the page url for sharing in the query string
+        Url = WebUtility.UrlEncode(NavUrlHelpers.BaseUrl + NavUrlHelpers.PostUrlStub + Post.NormalizedTitle);
+    }
+}

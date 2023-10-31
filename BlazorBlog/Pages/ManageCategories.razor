@@ -1,0 +1,97 @@
+﻿@page "/managecategories"
+@attribute [Authorize]
+@inherits DataPage
+@inject NavigationManager navMan
+<EditMenu />
+<h3>Manage Categories</h3>
+<RadzenFormField Component="post-status" Text="Items per page" class="mb-2">
+    <RadzenDropDown id="page-size" class="my-2" @bind-Value="PageSize" Data="new int[] {1,2,3,4,5,6,7,8,9,10}" Change="PageSizeChanged" />
+</RadzenFormField>
+<div class="categories">
+    @if (categories != null)
+    {
+        foreach(var category in categories)
+        {
+            <div class="category row my-2 border p-2 mx-auto" @key=category.BlogCategoryId>
+                <div class="col-8 pt-1">
+                    <h4><i class="fa-solid @category.Icon mr-2" style="color:#CCC"></i>@category.CategoryName</h4>
+                </div>
+                <div class="col-4">
+                    <button title="edit" @onclick="() => Edit(category)" class="btn btn-outline-light float-right"><i class="fa-solid fa-pen-to-square text-primary"></i></button>
+                </div>
+            </div>
+        }
+    }
+</div>
+<PagerComponentGeneric @ref="pagerComponentGeneric" T="BlogCategory" PageSize="5" List=@categories OnPagingChanged="PageChanged" />
+
+
+@code {
+    #region Member variables
+    /// <summary>
+    /// All categoires list
+    /// </summary>
+    private IEnumerable<BlogCategory> allCategories { get; set; } = default!;
+    /// <summary>
+    /// Currently displayed category list
+    /// </summary>
+    private IEnumerable<BlogCategory> categories { get; set; } = default!;
+    /// <summary>
+    /// Handle for the pager to facilitate initialization 
+    /// </summary>
+    private PagerComponentGeneric<BlogCategory> pagerComponentGeneric { get; set; } = default!;
+    /// <summary>
+    /// Sets the page size
+    /// </summary>
+    private int PageSize { get; set; } = 5;
+    #endregion
+
+    /// <summary>
+    /// Initializes the page parameters and the pager if required
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            allCategories = await BlogCategoryService.GetAllCategories();
+            if (allCategories != null && allCategories.Any())
+            {
+                pagerComponentGeneric.Initialize(allCategories);
+                categories = allCategories.Take(pagerComponentGeneric.PageSize).ToList();
+                await InvokeAsync(StateHasChanged);
+            }
+        }    
+    }
+
+    /// <summary>
+    /// Handles the edit button click for a particular category
+    /// </summary>
+    /// <param name="blogCategory"></param>
+    protected void Edit(BlogCategory blogCategory)
+    {
+        navMan.NavigateTo(NavUrlHelpers.EditCategoryUrlStub + blogCategory.CategoryNameNormalized);
+    }
+
+    /// <summary>
+    /// Handles the page changed callback triggered by the pager
+    /// </summary>
+    /// <param name="pager"></param>
+    /// <returns></returns>
+    protected async Task PageChanged(PagerModelGeneric<BlogCategory> pager)
+    {
+        categories = pager.CurrentItemList!;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handles the page size changed callback triggered by the page size drop down
+    /// </summary>
+    /// <param name="value"></param>
+    public async Task PageSizeChanged(object value)
+    {
+        var pageSize = (int)value;
+        await pagerComponentGeneric.ChangePageSize(pageSize, allCategories);
+    }
+}

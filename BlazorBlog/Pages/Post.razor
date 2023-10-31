@@ -1,0 +1,153 @@
+﻿@page "/post/{url}"
+@inherits DataPage
+@inject NavigationManager navMan
+@inject IJSRuntime _jsRuntime
+
+@if (model != null)
+{
+    <PageTitle>@SiteName | @model.Title</PageTitle>
+    <HeadContent>
+        <HeadTags BlogPost=@model/>
+    </HeadContent>
+    <EditMenu Post="@model" />
+}
+<div class="row">
+    @if (model != null && model.Published && !model.Archived)
+    {
+        <div id="blog-post" class="col-sm-12 col-lg-8">
+            <div class="row">
+                <div class="col">
+                    <h1 class="pt-0">@* <span class="fa-solid @model.Category!.Icon mr-2"></span> *@@model!.Title</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-lg-8 text-lg-left date mb-1">
+                    <meta itemprop="datePublished" content="@model.Created.ToString("yyyy-MM-dd")">
+                    <meta itemprop="dateModified" content="@model.Updated.ToString("yyyy-MM-dd")">
+                    @if (model.Author != null)
+                    {
+                        @if (model.Author.AuthorIcon != string.Empty)
+                        {
+                            <Avatar Url="@model.Author.AuthorIcon" />
+                            @* <AuthorSvg /> *@
+                            @*  <img src="@model.Author.AuthorIcon" width="30" style="border-radius:50%"/> *@
+                        }
+                        <span itemprop="author" itemscope itemtype="http://schema.org/Person" class="ml-1">@model.Author.AuthorName</span>
+                    }
+                    <span class="bar"> |</span>&nbsp;@model.Created.ToLongDateString()
+                </div>
+                <div class="col-sm-12 col-lg-4 text-lg-right">
+                    <p>
+                        <span class="category" title="click here to go to category"><a href="@("/category/" + model.Category!.CategoryNameNormalized)">@model.Category!.CategoryName</a></span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="post-body col-12 p-3 text-lg-left">
+                    <p>@postMarkup</p>
+                </div>
+            </div>
+            <SocialSharing Post="model"/>
+        </div>
+    }
+    <div class="col-sm-12 col-lg-4">
+        @if (PostList != null)
+        {
+            <h3 class="ml-3 mt-2">Recent Posts</h3>
+        }        
+        <PagerComponentGeneric Css="ml-3" @ref="pagerComponentGeneric" T="BlogPost" PageSize="5" List="@PostList" OnPagingChanged="OnPagingChanged" />
+        <PostList TemplateClass="blog-posts-thin" Posts="@PostList" />
+    </div>
+</div>
+
+
+@code {
+    #region Member Variables
+    [Parameter]
+    public string Url { get; set; } = default!;
+    private string prevUrl { get; set; } = default!;
+    public BlogPost? model { get; set; } = default!;
+    public MarkupString postMarkup { get; set; }
+    public IEnumerable<BlogPost> PostList { get; set; } = default!;
+    private PagerComponentGeneric<BlogPost> pagerComponentGeneric { get; set; } = default!;
+    public bool NotFound { get; set; } = default!;
+    public bool IsRefresh { get; set; } = default!;
+    public bool HasCode { get; set; } = default!;
+    public List<string> Manifest = new();
+    #endregion
+
+    /// <summary>
+    /// handles url parameters and initializes the page variables
+    /// </summary>
+    /// <param name="firstRender"></param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            prevUrl = Url;
+            await InitializePostVariables(Url);
+            if (HasCode) await _jsRuntime.InvokeVoidAsync("hljs.highlightAll");
+        }
+        else
+        {
+            if (Url != prevUrl)
+            {
+                await InitializePostVariables(Url);
+                prevUrl = Url;
+                IsRefresh = false;
+                if (HasCode) await _jsRuntime.InvokeVoidAsync("hljs.highlightAll");
+            }
+            else IsRefresh = true;
+        }
+    }
+
+    /// <summary>
+    /// Handles the page changed event of the pager model generic
+    /// </summary>
+    /// <param name="pager"></param>
+    public void OnPagingChanged(PagerModelGeneric<BlogPost> pager)
+    {
+        PostList = pager.CurrentItemList!;
+    }
+
+    /// <summary>
+    /// Initializes the page variables, this happens after render as URL parameters are not set
+    /// until this time in the component lifecycle. Also, @ref elements have been assigned
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public async Task InitializePostVariables(string url)
+    {
+        model = await BlogPostService.GetBlogPostByUrl(Url!)!;
+
+        if (model != null && model.Published && !model.Archived)
+        {
+            var result = await BlogPostService.GetBlogPostSlice(10, 0);
+            result = result.Where(x => x.NormalizedTitle != Url);
+            pagerComponentGeneric.Initialize(result);
+            PostList = result.Take(pagerComponentGeneric.PageSize);
+            postMarkup = new MarkupString(model.Post);
+            var jsManifest = TextHelpers.BuildManifestForHighlighter(model.Post);
+            if (jsManifest.Count > 0)
+            {
+                HasCode = true;
+                foreach (var jsFile in jsManifest)
+                {
+                    if (!Manifest.Contains(jsFile))
+                    {
+                        Manifest.Add(jsFile);
+                        await _jsRuntime.InvokeVoidAsync("loadJs", jsFile);
+                    }
+                }
+            }
+            else HasCode = false;
+            StateHasChanged();
+            NotFound = false;
+        }
+        else
+        {
+            NotFound = true;
+            navMan.NavigateTo("not-found");
+        }
+    }
+}

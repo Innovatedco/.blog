@@ -1,0 +1,205 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render create category")]
+    public void ShouldRenderCreateCategory()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CreateCategoryUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>();
+        var title = cut.Find("h3.title");
+
+        // Assert
+        Assert.Contains("Create", title.InnerHtml);
+    }
+
+    [Fact(DisplayName = "Should render edit category")]
+    public void ShouldRenderEditCategory()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var category = arrangeResult.RandomPostDto.List.Select(x => x.Category).First();
+        var url = NavUrlHelpers.EditCategoryUrl + category.CategoryNameNormalized;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>(parameters =>
+            parameters.Add(p => p.Url, category.CategoryNameNormalized));
+        var handles = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
+
+        // Assert
+        Assert.Contains("Edit", handles.TitleTag!.InnerHtml);
+        Assert.Equal(category.CategoryName, handles.CategoryNameInput!.Value);
+        Assert.Equal(category.Icon, handles.CategoryIconInput!.Value);
+    }
+
+    [Fact(DisplayName = "Should redirect to create category if a bad category reference is provided")]
+    public void ShouldRedirectToCreateCategoryIfABadCategoryReferenceIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var url = NavUrlHelpers.EditCategoryUrl + "oops";
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>(parameters =>
+            parameters.Add(p => p.Url, "oops"));
+
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.CreateCategoryUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should create a blog category")]
+    public async Task ShouldCreateABlogCategory()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CreateCategoryUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>();
+        var handlers = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
+        var category = new BlogCategory
+            {
+                BlogCategoryId = Guid.NewGuid(),
+                CategoryName ="category-name",
+                Icon = "category-icon"
+            };
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Category, category));
+        var id = cut.Instance.Category.BlogCategoryId;
+        handlers.SaveButton!.Click();
+        var savedCategory = await arrangeResult.BlogCategoryServiceEF.GetCategoryById(id);
+
+        // Assert
+        Assert.Equal(cut.Instance.Category, savedCategory);
+    }
+
+    [Fact(DisplayName = "Should update a blog category")]
+    public async Task ShouldUpdateABlogCategory()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var category = arrangeResult.RandomPostDto.List.Select(x => x.Category).First();
+        var url = NavUrlHelpers.EditCategoryUrl + category!.CategoryNameNormalized;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>(parameters =>
+            parameters.Add(p => p.Url, category.CategoryNameNormalized));
+        var handles = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
+
+        cut.Instance.Category.CategoryName = "category-title";
+        cut.Instance.Category.Icon = "html-icon";
+        handles.SaveButton!.Click();
+        var updatedCategory = await arrangeResult.BlogCategoryServiceEF.GetCategoryById(category.BlogCategoryId);
+
+        // Assert
+        Assert.True(updatedCategory.CategoryName == "category-title");
+        Assert.True(updatedCategory.Icon == "html-icon");
+    }
+
+    [Fact(DisplayName = "Should delete a category")]
+    public async Task ShouldDeleteABlogCategory()
+    {
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var category = new BlogCategory { CategoryName = "new-category", Icon = "new-icon", CategoryNameNormalized = NavUrlHelpers.NormalizePostTitleForUrl("new-category") };
+        await arrangeResult.BlogCategoryServiceEF.CreateBlogCategory(category);
+        var url = NavUrlHelpers.EditCategoryUrl + category.CategoryNameNormalized;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>(parameters =>
+            parameters.Add(p => p.Url, category.CategoryNameNormalized));
+        var handles = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
+
+        handles.DeleteFinalButton!.Click();
+
+        var deletedCategory = await arrangeResult.BlogCategoryServiceEF.GetCategoryByUrl(category.CategoryNameNormalized);
+
+        // Assert
+        Assert.Null(deletedCategory);
+    }
+
+    [Fact(DisplayName = "Should cancel an update")]
+    public async Task ShouldCancel()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var newCategory = new BlogCategory
+            {
+                BlogCategoryId = Guid.NewGuid(),
+                CategoryName = "category-name",
+                Icon = "category-icon",
+                CategoryNameNormalized = NavUrlHelpers.NormalizePostTitleForUrl("category-name")
+            };
+        await arrangeResult.BlogCategoryServiceEF.CreateBlogCategory(newCategory);
+        var url = NavUrlHelpers.EditCategoryUrl + newCategory.CategoryNameNormalized;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<CreateEditCategory>(parameters =>
+            parameters.Add(p => p.Url, newCategory.CategoryNameNormalized));
+        var handles = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
+        handles.CancelButton!.Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.ManageCategoriesUrlStub, navMan.Uri);
+    }
+}

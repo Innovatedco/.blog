@@ -1,0 +1,102 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render if a valid url parameter is provided")]
+    public void ShouldRenderIfAValidUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var category = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).Select(x => x.Category).First();
+        var urlStub = category!.CategoryNameNormalized;
+        var url = NavUrlHelpers.CategoryUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<Category>(parameters => parameters.Add(p => p.Url, category.CategoryNameNormalized));
+        var catName = cut.WaitForElement("h1").InnerHtml;
+        // Assert
+        Assert.False(string.IsNullOrEmpty(catName));
+        Assert.Equal(category.CategoryName, catName);
+    }
+
+    [Fact(DisplayName = "Should rerender if a new url parameter is provided")]
+    public void ShouldReRenderIfANewUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var categories = arrangeResult.RandomPostDto.List.Where(x => x.Published && !x.Archived).Select(x => x.Category);
+        var category = categories.First();
+        var category2 = categories.Skip(1).Take(1).First();
+        var urlStub = category!.CategoryNameNormalized;
+        var url = NavUrlHelpers.CategoryUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<Category>(parameters => parameters.Add(p => p.Url, category.CategoryNameNormalized));
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Url, category2.CategoryNameNormalized));
+        // Assert
+        Assert.Contains(category2.CategoryName, cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should not update if the same url parameter is provided")]
+    public void ShouldNotUpdateIfTheSameUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var urlStub = "oops";
+        var url = NavUrlHelpers.CategoryUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<Category>(parameters => parameters.Add(p => p.Url, url));
+        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Url, url));
+
+        // Assert
+        Assert.True(cut.Instance.IsRefresh);
+    }
+
+    [Fact(DisplayName = "Should navigate to not-found if an invalid url parameter is provided")]
+    public void ShouldNavigateToNotFoundIfAnInvalidUrlParameterIsProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var urlStub = "oops";
+        var url = NavUrlHelpers.CategoryUrl + urlStub;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<Category>(parameters => parameters.Add(p => p.Url, url));
+
+        // Assert
+        Assert.True(cut.Instance.NotFound);
+    }
+}

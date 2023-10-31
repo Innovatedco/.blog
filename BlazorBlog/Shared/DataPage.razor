@@ -1,0 +1,26 @@
+﻿@inject IBlogPostService blogPostService
+@inject IBlogCategoryService blogCategoryService
+@inject IAuthorService authorService
+@inject IConfiguration configuration
+
+@code {
+    #region Member Variables
+    public IBlogPostService BlogPostService { get; set; } = default!;
+    public IBlogCategoryService BlogCategoryService { get; set; } = default!;
+    public IAuthorService AuthorService { get; set; } = default!;
+    public IConfiguration Configuration { get; set; } = default!;
+    public string SiteName { get; set; } = default!;
+    #endregion
+
+    /// <summary>
+    /// Initializes the services for Data pages
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        BlogPostService = blogPostService;
+        BlogCategoryService = blogCategoryService;
+        AuthorService = authorService;
+        Configuration = configuration;
+        SiteName = configuration["CustomSettings:SiteName"]!;
+    }
+}

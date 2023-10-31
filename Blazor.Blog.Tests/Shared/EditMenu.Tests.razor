@@ -1,0 +1,252 @@
+﻿@using System.Security.Claims;
+@using static Blazor.Blog.Tests.HelperClasses.ArrangeHelpers;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should not render if user is not authorized")]
+    public void ShouldNotRenderIfUserIsNotAuthorized()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.NotAuthorized,
+                UseNavigation = true
+        });
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+
+        // Assert
+        Assert.Contains("login", cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should render if user is authorized")]
+    public void ShouldRenderIfUserIsAuthorized()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+
+        // Assert
+        Assert.NotEmpty(cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should render edit category link on a category page")]
+    public void ShouldRenderEditCategoryLink()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CategoryUrl
+            });
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+        var categoryButton = cut.Find("button[name='edit-category']");
+
+        // Assert
+        Assert.NotNull(categoryButton);
+    }
+
+    [Fact(DisplayName = "Should render edit post link on a post page")]
+    public void ShouldRenderEditPostLink()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.PostUrl
+            });
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+        var categoryButton = cut.Find("button[name='edit-post']");
+
+        // Assert
+        Assert.NotNull(categoryButton);
+    }
+
+    [Fact(DisplayName = "Should navigate to edit post page when edit post clicked")]
+    public void ShouldNavigateToEditPostPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.PostUrl
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+        cut.Find("button[name='edit-post']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.EditPostStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to edit category page when edit category clicked")]
+    public void ShouldNavigateToEditCategoryPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.CategoryUrl
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        var post = BlogPostHelpers.BuildPublishableBlogPostFixture();
+        var category = BlogCategoryHelpers.BuildBlogCategoryFixture();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.Category, category)
+        );
+        cut.Find("button[name='edit-category']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.EditCategoryUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to create post page when create post clicked")]
+    public void ShouldNavigateToCreatePostPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>();
+        cut.Find("button[name='create-post']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.CreatePostUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to create category page when create category clicked")]
+    public void ShouldNavigateToCreateCategoryPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>();
+        cut.Find("button[name='create-category']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.CreateCategoryUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to manage posts page when manage posts clicked")]
+    public void ShouldNavigateToManagePostsPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>();
+        cut.Find("button[name='manage-posts']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.ManagePostsUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to manage categories page when manage categories clicked")]
+    public void ShouldNavigateToManageCategoriesPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>();
+        cut.Find("button[name='manage-categories']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.ManageCategoriesUrlStub, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should navigate to log out page when sign out clicked")]
+    public void ShouldNavigateTologOutPage()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        Arrange(ctx, new ArrangeConfig
+            {
+                UseAuthorization = ArrangeConfig.AuthorizationStatus.Authorized,
+                UseNavigation = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditMenu>();
+        cut.Find("button[name='sign-out']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.LogoutUrlStub, navMan.Uri);
+    }
+}

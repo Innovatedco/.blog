@@ -1,0 +1,23 @@
+﻿@using Blazor.Blog.Data;
+@inherits TestContext
+@code {
+    [Fact(DisplayName = "Should Load Data Services")]
+    public void ShouldLoadDataServices()
+    {        
+        // Arrange
+        //var arrangeResult = Arrange();
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+        {
+            UseData = true
+        });
+
+        // Act
+        var cut = ctx.RenderComponent<DataPage>();
+
+        // Assert
+        Assert.NotNull(cut.Instance.BlogPostService);
+        Assert.NotNull(cut.Instance.BlogCategoryService);
+        Assert.NotNull(cut.Instance.AuthorService);
+    }
+}

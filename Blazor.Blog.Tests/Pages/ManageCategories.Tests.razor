@@ -1,0 +1,46 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render")]
+    public void ShouldRender()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+        {
+            UseData = true,
+            UseNavigation = true,
+            UseNavigationUri = NavUrlHelpers.ManageCategoriesUrl,
+            UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized
+        });
+
+        // Act
+        var cut = ctx.RenderComponent<ManageCategories>();
+
+        // Assert
+        Assert.NotNull(cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should navigate to edit category if edit button is clicked")]
+    public void ShouldNavigateToEditCategoryIfEditButtonIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManageCategoriesUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<ManageCategories>();
+        var editButton = cut.Find("button[title='edit']");
+        editButton.Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.EditCategoryUrlStub, navMan.Uri);
+    }
+}

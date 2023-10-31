@@ -1,0 +1,98 @@
+﻿@page "/manageauthors"
+@attribute [Authorize]
+@inherits DataPage
+@inject NavigationManager navMan
+<EditMenu />
+<h3>Manage Authors</h3>
+<RadzenFormField Component="post-status" Text="Items per page" class="mb-2">
+    <RadzenDropDown id="page-size" class="my-2" @bind-Value="PageSize" Data="new int[] {1,2,3,4,5,6,7,8,9,10}" Change="PageSizeChanged" />
+</RadzenFormField>
+<div class="authors">
+    @if (authors != null)
+    {
+        foreach (var author in authors)
+        {
+            <div class="author row my-2 border p-2 mx-auto" @key=author.AuthorId>
+                <div class="col-8 pt-1">
+                    <h4><Avatar Url="@author.AuthorIcon" Classes="mr-2 mb-1" /><span>@author.AuthorName</span></h4>
+                </div>
+                <div class="col-4">
+                    <button title="edit" @onclick="() => Edit(author)" class="btn btn-outline-light float-right"><i class="fa-solid fa-pen-to-square text-primary"></i></button>
+                </div>
+            </div>
+        }
+    }
+</div>
+<PagerComponentGeneric @ref="pagerComponentGeneric" T="Author" PageSize="5" List=@authors OnPagingChanged="PageChanged" />
+
+
+@code {
+    #region Member variables
+    /// <summary>
+    /// All categoires list
+    /// </summary>
+    private IEnumerable<Author> allAuthors { get; set; } = default!;
+    /// <summary>
+    /// Currently displayed author list
+    /// </summary>
+    private IEnumerable<Author> authors { get; set; } = default!;
+    /// <summary>
+    /// Handle for the pager to facilitate initialization
+    /// </summary>
+    private PagerComponentGeneric<Author> pagerComponentGeneric { get; set; } = default!;
+    /// <summary>
+    /// Sets the page size
+    /// </summary>
+    private int PageSize { get; set; } = 5;
+    #endregion
+
+    /// <summary>
+    /// Initializes the page parameters and the pager if required
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            allAuthors = await AuthorService.GetAllAuthors();
+            if (allAuthors != null && allAuthors.Any())
+            {
+                pagerComponentGeneric.Initialize(allAuthors);
+                authors = allAuthors.Take(pagerComponentGeneric.PageSize).ToList();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles the edit button click for a particular author
+    /// </summary>
+    /// <param name="blogauthor"></param>
+    protected void Edit(Author author)
+    {
+        navMan.NavigateTo(NavUrlHelpers.EditAuthorUrlStub + author.AuthorId);
+    }
+
+    /// <summary>
+    /// Handles the page changed callback triggered by the pager
+    /// </summary>
+    /// <param name="pager"></param>
+    /// <returns></returns>
+    protected async Task PageChanged(PagerModelGeneric<Author> pager)
+    {
+        authors = pager.CurrentItemList!;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handles the page size changed callback triggered by the page size drop down
+    /// </summary>
+    /// <param name="value"></param>
+    public async Task PageSizeChanged(object value)
+    {
+        var pageSize = (int)value;
+        await pagerComponentGeneric.ChangePageSize(pageSize, allAuthors);
+    }
+}
+

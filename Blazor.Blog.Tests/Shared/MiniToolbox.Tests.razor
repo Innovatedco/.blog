@@ -1,0 +1,240 @@
+﻿@using Blazor.Blog.Data;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render an unpublish button if the blog post is published")]
+    public void ShouldRenderAnUnpublishButtonIfTheBlogPostIsPublished()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => x.Published).First();
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+        .Add(p => p.Post, post)
+        );
+
+        // Assert
+        // finds the unpublish button
+        var unpublishButton = cut.Find("Button[Title='unpublish']");
+
+        Assert.NotNull(unpublishButton);
+    }
+
+    [Fact(DisplayName = "Should render a publish button if the blog post is unpublished")]
+    public void ShouldRenderAPublishButtonIfTheBlogPostIsPublished()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => !x.Published).First();
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+        .Add(p => p.Post, post)
+        );
+
+        // Assert
+        // finds the unpublish button
+        var publishButton = cut.Find("Button[Title='publish']");
+
+        Assert.NotNull(publishButton);
+    }
+
+    [Fact(DisplayName = "Should render a delete button if the blog post is not archived")]
+    public void ShouldRenderADeleteButtonIfTheBlogPostIsNotArchived()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => !x.Archived).First();
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+        .Add(p => p.Post, post)
+        );
+
+        // Assert
+        var deleteButton = cut.Find("Button[Title='delete']");
+
+        Assert.NotNull(deleteButton);
+    }
+
+    [Fact(DisplayName = "Should render an undelete button if the blog post is archived")]
+    public void ShouldRenderAnUndeleteButtonIfTheBlogPostIsArchived()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => x.Archived).First();
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+        .Add(p => p.Post, post)
+        );
+
+        // Assert
+        var undeleteButton = cut.Find("Button[Title='undelete']");
+
+        Assert.NotNull(undeleteButton);
+    }
+
+    [Fact(DisplayName = "Should redirect to blog post edit page if edit is clicked")]
+    public void ShouldRedirectToBlogPostEditPageIfEditIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManagePostsUrl,
+                UseDataBlogPost = true
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => x.Published).First();
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+        .Add(p => p.Post, post)
+        );
+        cut.Find("Button[Title='edit']").Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.EditPostStub, navMan.Uri);
+        Assert.Contains(post.NormalizedTitle, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should publish a blog post if publish is clicked")]
+    public void ShouldPublishABlogPostIfPublishIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseDataBlogPost = true
+            });
+
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => !x.Published).First();
+        var eventCalled = false;
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.OnStatusChanged, () => { eventCalled = true; })
+        );
+        var publishButton = cut.Find("Button[Title='publish']");
+        publishButton.Click();
+
+        // Assert
+        Assert.True(eventCalled);
+        Assert.True(post.Published);
+    }
+
+    [Fact(DisplayName = "Should unpublish a blog post if unpublish is clicked")]
+    public void ShouldUnpublishABlogPostIfUnpublishIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseDataBlogPost = true
+            });
+
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => x.Published).First();
+        var eventCalled = false;
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.OnStatusChanged, () => { eventCalled = true; })
+        );
+        var unpublishButton = cut.Find("Button[Title='unpublish']");
+        unpublishButton.Click();
+
+        // Assert
+        Assert.True(eventCalled);
+        Assert.False(post.Published);
+    }
+
+    [Fact(DisplayName = "Should archive a blog post if delete is clicked")]
+    public void ShouldArchiveABlogPostIfDeleteIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseDataBlogPost = true
+            });
+
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => !x.Archived).First();
+        var eventCalled = false;
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.OnStatusChanged, () => { eventCalled = true; })
+        );
+        var deleteButton = cut.Find("Button[Title='delete']");
+        deleteButton.Click();
+
+        // Assert
+        Assert.True(eventCalled);
+        Assert.True(post.Archived);
+    }
+
+    [Fact(DisplayName = "Should dearchive a blog post if undelete is clicked")]
+    public void ShouldDearchiveABlogPostIfUndeleteIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseDataBlogPost = true
+            });
+
+        var dto = arrangeResult.RandomPostDto;
+        var post = dto.List.Where(x => x.Archived).First();
+        var eventCalled = false;
+
+        // Act
+        var cut = ctx.RenderComponent<MiniToolbox>(parameters => parameters
+            .Add(p => p.Post, post)
+            .Add(p => p.OnStatusChanged, () => { eventCalled = true; })
+        );
+        var undeleteButton = cut.Find("Button[Title='undelete']");
+        undeleteButton.Click();
+
+        // Assert
+        Assert.True(eventCalled);
+        Assert.False(post.Archived);
+    }
+}

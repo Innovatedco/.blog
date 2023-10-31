@@ -1,0 +1,46 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render")]
+    public void ShouldRender()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManageAuthorsUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<ManageAuthors>();
+
+        // Assert
+        Assert.NotNull(cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should navigate to edit author if edit button is clicked")]
+    public void ShouldNavigateToEditAuthorIfEditButtonIsClicked()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.ArrangeWithResult(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = NavUrlHelpers.ManageAuthorsUrl,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized
+            });
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<ManageAuthors>();
+        var editButton = cut.Find("button[title='edit']");
+        editButton.Click();
+
+        // Assert
+        Assert.Contains(NavUrlHelpers.EditAuthorUrlStub, navMan.Uri);
+    }
+}

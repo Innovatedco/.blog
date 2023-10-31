@@ -1,0 +1,20 @@
+﻿@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render")]
+    public void ShouldRender()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.NotAuthorized
+            });
+
+        // Act
+        var cut = ctx.RenderComponent<PrivacyPolicy>();
+        // Assert
+        Assert.Contains("Blazor Blog", cut.Markup);
+    }
+}
