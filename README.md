@@ -61,7 +61,9 @@ cd BlazorBlog
  ```
  dotnet ef database update
  ```
- 4. Additionally you can brand the blog by replacing the logo.png and logosmall.png files located in the wwwroot/images folder
+ 4. Additionally you can brand the blog by replacing the following files located in the wwwroot/images folder:
+    - logo.png (960px X 150px)
+    - logosmall.png (630px X 100px)
  5. Uncomment the following line in program.cs (line 16)
  ```C#
  options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
@@ -70,4 +72,7 @@ cd BlazorBlog
 
  # Set Up
  Now the project is running you need to create a user login:
- 1. Navigate to /account/create and create a user login (the route you allowed by uncommenting the line in the program.cs file)
+ 1. Navigate to /account/create and create a user login (the route you allowed by uncommenting the line in the program.cs file)\
+ __<span style="color: red">It is ESSENTIAL that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.</span>__\
+ **note: you can have multiple logins and multiple authors, but since it is a single blog, any user is able to edit/create/archive/draft any post and authors are not linked to logins.** 
+ 2. Edit the existing Post/Category/Author or create and post your own categories/authors/blog posts. 
