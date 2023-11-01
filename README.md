@@ -54,11 +54,11 @@ you should also create an empty sql server/sql express database and note the con
 cd BlazorBlog
 ```
  Then run the following command to generate an entity framework migration: 
- ```
+ ```PowerShell
  dotnet ef migrations add InitialCreate
  ```
  And finally update your database.
- ```
+ ```PowerShell
  dotnet ef database update
  ```
  4. Additionally you can brand the blog by replacing the following files located in the wwwroot/images folder:
