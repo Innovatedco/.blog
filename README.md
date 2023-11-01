@@ -1,4 +1,3 @@
-# BlazorBlog
 <h1 align="center">
 
 <img src="https://github.com/sedgey/BlazorBlog/blob/master/BlazorBlog/wwwroot/Images/logosmall.png?sanitize=true" alt="SixLabors.ImageSharp"/>
@@ -8,8 +7,7 @@ BlazorBlog
 
 ### **BlazorBlog** is a new, open source, simple blog platform, built with Blazor. 
 
-BlazorBlog is a new, open source, simple blog platform, built with Blazor. 
-Designed to simplify image processing, ImageSharp brings you an incredibly powerful yet beautifully simple API.
+BlazorBlog is a new, open source, simple blog platform, built with Blazor.
 
 BlazorBlog is designed to be simple, flexible and extensible.
 
