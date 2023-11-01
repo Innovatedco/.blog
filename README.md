@@ -68,6 +68,7 @@ cd BlazorBlog
  ```C#
  options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
  ```
+ <img src="programcs.png"/>
  6. Run the project
 
  # Set Up
