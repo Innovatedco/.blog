@@ -91,4 +91,5 @@ It is __ESSENTIAL__ that you comment out or delete (recommended) this line in yo
 You can have multiple logins and multiple authors, but since it is a single blog, 
 any user is able to create/edit/archive(delete)/draft any post, create/edit/delete categories and create/edit authors. Authors are NOT linked to logins. 
  <img src="createaccount.png"/>
- 2. Now you can edit the existing Post/Category/Author or create and post your own categories/authors/blog posts etc. Enjoy!
+ 2. Now you can edit the existing Post/Category/Author or create and post your own categories/authors/blog posts etc. Enjoy!\
+ 
