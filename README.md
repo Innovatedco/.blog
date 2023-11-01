@@ -1,6 +1,6 @@
 ﻿<h1 align="center">
 
-<img src="https://github.com/sedgey/BlazorBlog/blob/master/BlazorBlog/wwwroot/Images/logosmall.png?sanitize=true" alt="SixLabors.ImageSharp"/>
+<img src="logosmall.png"/>
 <br/>
 BlazorBlog
 </h1>
@@ -14,11 +14,12 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 ## Features
 
 - East to configure, quick to get up and running.
-- Social media friendly out of the box, with sharing functionality and appropriate dynamic meta tag creation.
+- Social-media-friendly out of the box, with sharing functionality and appropriate dynamic meta tag creation.
 - Automatic featuring and display of recent posts.
 - GDPR built in.
 - Easily extensible.
-- SEO friendly, automatic sitemap creation.
+- SEO-friendly, meta tags and automatic sitemap creation.
+- Mobile-friendly responsive front end.
 
 ## License
   
