@@ -5,7 +5,7 @@
 BlazorBlog
 </h1>
 
-### **BlazorBlog** is a new, open source, simple blog platform, built with Blazor. 
+### **BlazorBlog** is a new, open source, simple single blog platform, built with Blazor. 
 
 BlazorBlog is designed to be simple, flexible and extensible.
 
@@ -18,13 +18,16 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 
 ## Getting started
 
-1. Clone the repository and make sure to open the solution file in Visual Studio.\ 🟩__NOTE__🟩 (if you clone a project in VS with a solution file in it, VS will not automatically open the solution file so you must open the file yourself)
+1. Ok, lets get this show on the road! Clone the repository and make sure to open the solution file in Visual Studio.\
+🟩 __NOTE__ 🟩\
+If you clone a project in Visual Studio with a solution file in it, Visual Studio will not automatically open the solution file, so you must open the file yourself.
 ```
 git clone https://github.com/sedgey/BlazorBlog.git
 ```
-2. Create an empty sql server/sql express database and note the connection string.
+2. Create an empty sql server/sql express database in a location of your choosing and note the connection string.
 3. Add an appsettings.json file to the BlazorBlog project with the following content,\
-🟥 __IMPORTANT__ 🟥 be sure to replace all entries surrounded with #### 
+🟥 __IMPORTANT__ 🟥\
+__Replace all entries surrounded with #### with your own values.__
 ```JSON with comments
 {
   "DetailedErrors": true, // turns on CircuitOptions.DetailedErrors
@@ -60,7 +63,7 @@ cd BlazorBlog
  ```PowerShell
  dotnet ef database update
  ```
- 4. Additionally you can brand the blog by replacing the following files located in the wwwroot/images folder:
+ 4. Additionally you can brand the blog by replacing the following files located in the BlazorBlog wwwroot/images folder:
     - logo.png (960px X 150px)
     - logosmall.png (630px X 100px)
  5. Uncomment the following line in program.cs (line 16)
@@ -71,10 +74,12 @@ cd BlazorBlog
  6. Run the project
 
  # Set Up
- Now the project is running you need to create a user login:
+ If everything went well then the project is up and running, so you need to create a user login:
  1. Navigate to /account/create and create a user login (the route you allowed by uncommenting the line in the program.cs file)\
- 🟥 __VERY IMPORTANT__ 🟥
-It is ESSENTIAL that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.</span>__\
- **note: you can have multiple logins and multiple authors, but since it is a single blog, any user is able to edit/create/archive/draft any post and authors are not linked to logins.** 
+ 🟥 __VERY IMPORTANT__ 🟥\
+It is __ESSENTIAL__ that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.\
+ 🟩 __NOTE__ 🟩\
+You can have multiple logins and multiple authors, but since it is a single blog, 
+any user is able to create/edit/archive(delete)/draft any post, create/edit/delete categories and create/edit authors. Authors are NOT linked to logins. 
  <img src="createaccount.png"/>
- 2. Edit the existing Post/Category/Author or create and post your own categories/authors/blog posts. 
+ 2. Now you can edit the existing Post/Category/Author or create and post your own categories/authors/blog posts etc. Enjoy!
