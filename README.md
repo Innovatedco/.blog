@@ -11,6 +11,14 @@ BlazorBlog is designed to be simple, flexible and extensible.
 
 Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0).
 
+## Features
+
+- East to configure, quick to get up and running.
+- Social media friendly out of the box, with sharing functionality and appropriate dynamic meta tag creation.
+- Automatic featuring and display of recent posts.
+- GDPR built in.
+- Easily extensible.
+- SEO friendly, automatic sitemap creation.
 
 ## License
   
@@ -18,7 +26,7 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 
 ## Getting started
 
-1. Ok, lets get this show on the road! Clone the repository and make sure to open the solution file in Visual Studio.\
+1. Ok, lets get this show on the road! First, clone the repository and make sure to open the solution file in Visual Studio.\
 🟩 __NOTE__ 🟩\
 If you clone a project in Visual Studio with a solution file in it, Visual Studio will not automatically open the solution file, so you must open the file yourself.
 ```
