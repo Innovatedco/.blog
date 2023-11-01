@@ -1,4 +1,4 @@
-<h1 align="center">
+﻿<h1 align="center">
 
 <img src="https://github.com/sedgey/BlazorBlog/blob/master/BlazorBlog/wwwroot/Images/logosmall.png?sanitize=true" alt="SixLabors.ImageSharp"/>
 <br/>
@@ -6,8 +6,6 @@ BlazorBlog
 </h1>
 
 ### **BlazorBlog** is a new, open source, simple blog platform, built with Blazor. 
-
-BlazorBlog is a new, open source, simple blog platform, built with Blazor.
 
 BlazorBlog is designed to be simple, flexible and extensible.
 
@@ -24,7 +22,8 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 ```
 git clone https://github.com/sedgey/BlazorBlog.git
 ```
-2. Add an appsettings.json file to the BlazorBlog project with the following content, be sure to replace all entries surrounded with #### 
+2. Add an appsettings.json file to the BlazorBlog project with the following content,\
+🟥 __IMPORTANT__ 🟥 be sure to replace all entries surrounded with #### 
 you should also create an empty sql server/sql express database and note the connection string:
 ```JSON with comments
 {
@@ -74,7 +73,8 @@ cd BlazorBlog
  # Set Up
  Now the project is running you need to create a user login:
  1. Navigate to /account/create and create a user login (the route you allowed by uncommenting the line in the program.cs file)\
- __<span style="color: red">It is ESSENTIAL that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.</span>__\
+ 🟥 __VERY IMPORTANT__ 🟥
+It is ESSENTIAL that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.</span>__\
  **note: you can have multiple logins and multiple authors, but since it is a single blog, any user is able to edit/create/archive/draft any post and authors are not linked to logins.** 
  <img src="createaccount.png"/>
  2. Edit the existing Post/Category/Author or create and post your own categories/authors/blog posts. 
