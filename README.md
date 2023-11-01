@@ -18,13 +18,13 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 
 ## Getting started
 
-1. Clone the repository and make sure to open the solution file in Visual Studio
+1. Clone the repository and make sure to open the solution file in Visual Studio.\ 🟩__NOTE__🟩 (if you clone a project in VS with a solution file in it, VS will not automatically open the solution file so you must open the file yourself)
 ```
 git clone https://github.com/sedgey/BlazorBlog.git
 ```
-2. Add an appsettings.json file to the BlazorBlog project with the following content,\
+2. Create an empty sql server/sql express database and note the connection string.
+3. Add an appsettings.json file to the BlazorBlog project with the following content,\
 🟥 __IMPORTANT__ 🟥 be sure to replace all entries surrounded with #### 
-you should also create an empty sql server/sql express database and note the connection string:
 ```JSON with comments
 {
   "DetailedErrors": true, // turns on CircuitOptions.DetailedErrors
@@ -48,7 +48,7 @@ you should also create an empty sql server/sql express database and note the con
   }
 }
 ```
-3. Open the package manager console and cd into the blog project folder:
+4. Next we are going to scaffold the database so open the package manager console and cd into the blog project folder:
 ```
 cd BlazorBlog
 ```
