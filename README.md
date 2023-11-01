@@ -63,10 +63,10 @@ cd BlazorBlog
  ```PowerShell
  dotnet ef database update
  ```
- 4. Additionally you can brand the blog by replacing the following files located in the BlazorBlog wwwroot/images folder:
+ 5. Additionally you can brand the blog by replacing the following files located in the BlazorBlog wwwroot/images folder:
     - logo.png (960px X 150px)
     - logosmall.png (630px X 100px)
- 5. Uncomment the following line in program.cs (line 16)
+ 6. Uncomment the following line in program.cs (line 16)
  ```C#
  options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
  ```
