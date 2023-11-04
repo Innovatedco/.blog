@@ -403,3 +403,5 @@ FodyWeavers.xsd
 /Blazor.Blog.Tests/TestResults
 /Blazor.Blog.Tests/coverage.ps1
 /BlazorBlog/migrations
+/BlazorBlog/wwwroot/css/custom-bootstrap.scss
+/BlazorBlog/wwwroot/css/package.json
