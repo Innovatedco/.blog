@@ -1126,6 +1126,10 @@ html {
     #button {
         bottom:15px;
         right:15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.6rem;
+        border-radius: 4px;
     }
 
     #nav-list {
@@ -1206,9 +1210,11 @@ html {
         #mobile-nav-bar nav button {
             color: #FFF;
             background-color: #6d91e2;
-            width:30px;
+            width: 40px;
+            height: 40px;
+            font-size: 1.6rem;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
             border: none;
         }
         #mobile-nav-bar nav {

@@ -3,25 +3,26 @@
 <AuthorizeView>
     <NotAuthorized>
         <div class="edit-menu me-3 mt-3 text-end">
-            <button name="login" @onclick=Login type="button" class="btn btn-outline-success btn-sm my-1">login</button><br />
+            <button name="login" @onclick=Login type="button" class="btn btn-outline-danger btn-sm my-1">login</button><br />
          </div>
     </NotAuthorized>
     <Authorized>
         <div class="edit-menu me-3 mt-3 text-end">
-            <button name="create-post" @onclick=CreatePost type="button" class="btn btn-warning btn-sm my-1">Create Post</button><br />
-            <button name="create-category" @onclick=CreateCategory type="button" class="btn btn-warning btn-sm my-1">Create Category</button><br />
-            <button name="create-author" @onclick=CreateAuthor type="button" class="btn btn-warning btn-sm my-1">Create Author</button><br />
-            @if (IsPostPage && Post != null)
-            {
-                <button name="edit-post" @onclick=EditPost type="button" class="btn btn-danger btn-sm my-1">Edit Post</button><br />
-            }
-            @if (IsCategoryPage && Category != null)
-            {
-                <button name="edit-category" @onclick=EditCategory type="button" class="btn btn-danger btn-sm my-1">Edit Category</button><br />
-            }
+            <button name="create-post" @onclick=CreatePost type="button" class="btn btn-danger btn-sm my-1">Create Post</button><br />
+            <button name="create-category" @onclick=CreateCategory type="button" class="btn btn-danger btn-sm my-1">Create Category</button><br />
+            <button name="create-author" @onclick=CreateAuthor type="button" class="btn btn-danger btn-sm my-1">Create Author</button><br />
+
             <button name="manage-posts" @onclick=ManagePosts type="button" class="btn btn-primary btn-sm my-1">Manage Posts</button><br />
             <button name="manage-categories" @onclick=ManageCategories type="button" class="btn btn-primary btn-sm my-1">Manage Categories</button><br />
             <button name="manage-authors" @onclick=ManageAuthors type="button" class="btn btn-primary btn-sm my-1">Manage Authors</button><br />
+            @if (IsPostPage && Post != null)
+            {
+                <button name="edit-post" @onclick=EditPost type="button" class="btn btn-success btn-sm my-1">Edit Post</button><br />
+            }
+            @if (IsCategoryPage && Category != null)
+            {
+                <button name="edit-category" @onclick=EditCategory type="button" class="btn btn-success btn-sm my-1">Edit Category</button><br />
+            }
             <button name="sign-out" @onclick=SignOut type="button" class="btn btn-success btn-sm my-1">Sign out</button><br />
         </div>
     </Authorized>

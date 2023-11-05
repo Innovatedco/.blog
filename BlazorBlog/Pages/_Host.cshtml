@@ -95,7 +95,12 @@
                 <span id="button"><i class="fas fa-arrow-alt-circle-up"></i></span>
                 <script src="~/Scripts/site.js"></script>
                 <script type="text/javascript">
+                    window.scrollTop = () => {
+                        $('html, body').animate({ scrollTop: 0 }, 300);
+                    };
+
                     $(document).ready(function () {
+
 
                         $menuLeft = $('.pushmenu-left');
                         $nav_list = $('#nav-list');
@@ -109,7 +114,7 @@
                         var btn = $('#button');
 
                         $(window).scroll(function () {
-                            if ($(window).scrollTop() > 200) {
+                            if ($(window).scrollTop() > 300) {
                                 btn.addClass('show');
                             } else {
                                 btn.removeClass('show');
