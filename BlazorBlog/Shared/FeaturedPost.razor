@@ -8,7 +8,7 @@
                 {
                     <Avatar Url="@Post.Author.AuthorIcon" />
                 }
-                <span itemprop="author" itemscope itemtype="http://schema.org/Person" class="ml-1">@Post.Author.AuthorName</span>
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">@Post.Author.AuthorName</span>
             }
             <meta itemprop="datePublished" content="@Post.Created.ToString("yyyy-MM-dd")">
             <meta itemprop="dateModified" content="@Post.Updated.ToString("yyyy-MM-dd")">
@@ -17,18 +17,17 @@
     </div>
     <div class="row">
         <div class="col-12 p-0 my-2">
-         <h1>@Title @Post.Title</h1>
+         <h1><span class="featured">@Title</span> @Post.Title</h1>
         </div>
     </div>
     <div class="row mt-1">
         <div class="col-lg-6 col-sm-12 overflow-hidden my-2" style="background:url('@(Post.ThumbnailUrl.Replace("thumb/small-", ""))') 40% 0 no-repeat">
             <a href="@("post/" + Post.NormalizedTitle)" class="d-block h-100 w-100">
-                @* <img src="@(Post.ThumbnailUrl.Replace("thumb/small-", ""))" class="w-100" /> *@
             </a>
         </div>
         <div class="col-lg-6 col-sm-12">
 
-            <p class="display-6">@TextHelpers.FormatStub(Post.Post, 600)</p>
+            <p class="featured-stub">@TextHelpers.FormatStub(Post.Post, 600)</p>
             <a class="text-decoration-none" href="@("post/" + Post.NormalizedTitle)">
                     <h5 class="bg-primary p-2 rounded text-light">Read More</h5>
             </a>

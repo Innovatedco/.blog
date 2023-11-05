@@ -21,14 +21,13 @@
                 <div class="blog-post-header row pb-1">
                         <div class="col-sm-12 col-lg-9 align-middle">
                             <a class="p-sm-0 mb-sm-2" href="@("post/" + post.NormalizedTitle)">
-                                <i class="mr-1 fa-solid @(post.Category!.Icon)" title="click here go to post"></i>
-                                @* <h4 class="d-inline-block text-truncate" title="@post.Title">@(TemplateClass == BlogPostsThin ? TextHelpers.FormatStub(post.Title, CalculateTitleStubLength(categoryName)) : post.Title)</h4> *@
+                            <i class="ms-1 fa-solid @(post.Category!.Icon)" title="click here go to post"></i>
                             @{ var titleClass = post.Title.Length > 35 ? "w-90" : ""; }
                             <h4 class="@titleClass" title="@post.Title">@post.Title</h4>
                             </a>
                         </div>
-                        <div class="py-1 py-lg-0 col-sm-12 col-lg-3 text-lg-right text-sm-left">
-                            <a href="@("/category/" + post.Category!.CategoryNameNormalized)"><span class="btn btn-sm" title="click here to go to category">@post.Category!.CategoryName</span></a>
+                        <div class="py-1 py-lg-0 col-sm-12 col-lg-3 text-lg-end text-sm-start">
+                        <a href="@("/category/" + post.Category!.CategoryNameNormalized)"><span class="btn btn-sm category" title="click here to go to category">@post.Category!.CategoryName</span></a>
                         </div>
                 </div>
                 <a href="@("post/" + post.NormalizedTitle)" name="click here to go to post" class="post-body-container">
@@ -41,7 +40,7 @@
                                  @(TextHelpers.FormatStub(post.Post, PostWithThumbStubLength))
                             </div>
                             <div class="thumbnail col-4">
-                                  <img src="@post.ThumbnailUrl" alt="@post.Title" class="rounded float-right" />
+                                  <img src="@post.ThumbnailUrl" alt="@post.Title" class="rounded float-end" />
                             </div>
                     }
                     else

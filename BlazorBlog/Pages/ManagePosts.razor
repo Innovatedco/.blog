@@ -1,7 +1,7 @@
 ﻿@page "/manageposts"
 @attribute [Authorize]
 @inherits DataPage
-<EditMenu />
+<Menus />
 <h3>Manage Posts</h3>
 <RadzenFormField Component="post-status" Text="Post status" class="mb-2">
     <RadzenDropDown id="post-status" class="my-2" @bind-Value="SortType" Data="BlogPostStatus.StatusTypes" Change="StatusTypeChanged"/>
@@ -11,6 +11,8 @@
 </RadzenFormField>
 <PostList Posts=@blogPosts PostStubLength="300" PostWithThumbStubLength="280" />
 <PagerComponentGeneric @ref="pagerComponentGeneric" T="BlogPost" PageSize="PageSize" OnPagingChanged="PageChanged" List="@blogPosts" />
+<br />
+<br />
 
 @code {
     #region Member variables

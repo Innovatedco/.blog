@@ -4,7 +4,7 @@
 <br />
 <br />
 <br />
-<section>
+<section class="account">
     <form method="post">
         <h3>Login</h3>
         <div class="form-group row">
@@ -17,7 +17,7 @@
             <input asp-for="Creds!.Password" type="password" autocomplete="current-password" class="form-control" aria-required="true" />
             <span asp-validation-for="Creds!.Password" class="text-danger"></span>
         </div>
-        <div class="form-group align-right">
+        <div class="form-group row mt-4">
             <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
         </div>
     </form>

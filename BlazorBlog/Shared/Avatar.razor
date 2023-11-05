@@ -1,6 +1,6 @@
 ﻿@if(Url != null)
 {
-    <img src="@Url" class="avatar@(string.IsNullOrEmpty(Classes) ? string.Empty : " " + Classes)"/>
+    <img width="30" height="30" src="@Url" class="avatar@(string.IsNullOrEmpty(Classes) ? string.Empty : " " + Classes)"/>
 }
 
 @code {

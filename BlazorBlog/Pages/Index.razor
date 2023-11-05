@@ -5,15 +5,15 @@
 <HeadContent>
     <HeadTags/>
 </HeadContent>
-<EditMenu />
+<Menus />
 <div class="row">
     <div class="col-lg-8 col-sm-12"><FeaturedPost Post="@Featured" /></div>
     <div class="col-lg-4 col-sm-12">
         @if(Posts != null)
         {
-            <h3 class="ml-3 mt-2 recentPostsTitle">Recent Posts</h3>
+            <h3 class="me-3 mt-2 recentPostsTitle">Recent posts</h3>
         }        
-        <PagerComponentGeneric Css="ml-3" @ref="pagerComponentGeneric" T="BlogPost" PageSize="3" OnPagingChanged="OnPagingChanged" List="@All" />
+        <PagerComponentGeneric Css="me-3" @ref="pagerComponentGeneric" T="BlogPost" PageSize="3" OnPagingChanged="OnPagingChanged" List="@All" />
         <PostList Posts="Posts" TemplateClass="blog-posts-thin" />
     </div>
     <div class="clearfix"></div>

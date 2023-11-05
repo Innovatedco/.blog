@@ -9,7 +9,7 @@
     <HeadContent>
         <HeadTags BlogPost=@model/>
     </HeadContent>
-    <EditMenu Post="@model" />
+    <Menus Post="@model" />
 }
 @scriptMarkup
 <div class="row">
@@ -18,7 +18,7 @@
         <div id="blog-post" class="col-sm-12 col-lg-8 preview">
             <div class="row">
                 <div class="col">
-                    <h1 class="pt-0">@* <span class="fa-solid @model.Category!.Icon mr-2"></span> *@@model!.Title</h1>
+                    <h1 class="pt-0">@* <span class="fa-solid @model.Category!.Icon ms-2"></span> *@@model!.Title</h1>
                 </div>
             </div>
             <div class="row">
@@ -32,11 +32,11 @@
                             <AuthorSvg />
                             @*  <img src="@model.Author.AuthorIcon" width="30" style="border-radius:50%"/> *@
                         }
-                        <span itemprop="author" itemscope itemtype="http://schema.org/Person" class="ml-1">@model.Author.AuthorName</span>
+                        <span itemprop="author" itemscope itemtype="http://schema.org/Person" class="me-1">@model.Author.AuthorName</span>
                     }
                     <span class="bar"> |</span>&nbsp;@model.Created.ToLongDateString()
                 </div>
-                <div class="col-sm-12 col-lg-4 text-lg-right">
+                <div class="col-sm-12 col-lg-4 text-lg-end">
                     <p>
                         <span class="category" title="click here to go to category"><a href="@("/category/" + model.Category!.CategoryNameNormalized)">@model.Category!.CategoryName</a></span>
                     </p>
@@ -53,9 +53,9 @@
     <div class="col-sm-12 col-lg-4">
         @if (PostList != null)
         {
-            <h3 class="ml-3 mt-2">Recent Posts</h3>
+            <h3 class="me-3 mt-2">Recent Posts</h3>
         }        
-        <PagerComponentGeneric Css="ml-3" @ref="pagerComponentGeneric" T="BlogPost" PageSize="5" List="@PostList" OnPagingChanged="OnPagingChanged" />
+        <PagerComponentGeneric Css="me-3" @ref="pagerComponentGeneric" T="BlogPost" PageSize="5" List="@PostList" OnPagingChanged="OnPagingChanged" />
         <PostList TemplateClass="blog-posts-thin" Posts="@PostList" />
     </div>
 </div>

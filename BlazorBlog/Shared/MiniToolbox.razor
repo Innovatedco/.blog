@@ -1,22 +1,22 @@
 ﻿@inject NavigationManager navMan
 @inject IBlogPostService blogPostService
 <div class="tool-box mt-1">
-    <button title="edit" @onclick="Edit" class="mr-2"><i class="fa-solid fa-pen-to-square text-primary m-auto"></i></button>
+    <button title="edit" @onclick="Edit" class="ms-2"><i class="fa-solid fa-pen-to-square text-primary m-auto"></i></button>
     @if (Post.Published)
     {
-        <button title="unpublish" @onclick="UnPublish" class="mr-2"><i class="fa-solid fa-download text-warning m-auto"></i></button>
+        <button title="unpublish" @onclick="UnPublish" class="ms-2"><i class="fa-solid fa-download text-warning m-auto"></i></button>
     }
     else
     {
-        <button title="publish" @onclick="Publish" class="mr-2"><i class="fa-solid fa-upload text-warning m-auto"></i></button>
+        <button title="publish" @onclick="Publish" class="ms-2"><i class="fa-solid fa-upload text-warning m-auto"></i></button>
     }
     @if(Post.Archived)
     {
-        <button title="undelete" @onclick="UnDelete" class="mr-2"><i class="fa-solid fa-trash-arrow-up text-danger m-auto"></i></button>
+        <button title="undelete" @onclick="UnDelete" class="ms-2"><i class="fa-solid fa-trash-arrow-up text-danger m-auto"></i></button>
     }
     else
     {
-        <button title="delete" @onclick="Delete" class="mr-2"><i class="fa-solid fa-trash-can text-danger m-auto"></i></button>
+        <button title="delete" @onclick="Delete" class="ms-2"><i class="fa-solid fa-trash-can text-danger m-auto"></i></button>
     }    
 </div>
 

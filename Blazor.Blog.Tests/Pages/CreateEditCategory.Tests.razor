@@ -130,13 +130,13 @@
         var handles = ActHelpers.GetCreateEditCategoryHandlesInstances(cut);
 
         cut.Instance.Category.CategoryName = "category-title";
-        cut.Instance.Category.Icon = "html-icon";
+        cut.Instance.Category.Icon = "htme-icon";
         handles.SaveButton!.Click();
         var updatedCategory = await arrangeResult.BlogCategoryServiceEF.GetCategoryById(category.BlogCategoryId);
 
         // Assert
         Assert.True(updatedCategory.CategoryName == "category-title");
-        Assert.True(updatedCategory.Icon == "html-icon");
+        Assert.True(updatedCategory.Icon == "htme-icon");
     }
 
     [Fact(DisplayName = "Should delete a category")]

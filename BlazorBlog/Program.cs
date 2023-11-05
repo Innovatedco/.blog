@@ -13,7 +13,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeAreaFolder("Account", "/");
     options.Conventions.AllowAnonymousToAreaPage("Account","/Login");
     options.Conventions.AllowAnonymousToAreaPage("Account","/Logout");
-    //options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
+    options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
     options.Conventions.AddPageRoute("/Sitemap", "Sitemap.xml");
 });
 builder.Services.AddServerSideBlazor();

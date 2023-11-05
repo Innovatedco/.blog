@@ -1,0 +1,115 @@
+﻿@inject NavigationManager navigationManager
+
+@code {
+    #region Member Variables
+    [CascadingParameter(Name = "Post")]
+    public BlogPost Post { get; set; } = default!;
+    [CascadingParameter(Name = "Category")]
+    public BlogCategory Category { get; set; } = default!;
+    public bool IsPostPage { get; private set; } = false;
+    public bool IsCategoryPage { get; private set; } = false;
+    #endregion
+
+    /// <summary>
+    /// Sets the page function based on the url
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        var parts = navigationManager.Uri.Split('/');
+        if (parts.Contains("post") || parts.Contains("preview"))
+        {
+            IsPostPage = true;
+        }
+        else if (parts.Contains("category"))
+        {
+            IsCategoryPage = true;
+        }
+    }
+
+    /// <summary>
+    /// Handles the edit post button click
+    /// </summary>
+    protected void EditPost()
+    {
+        if (Post != null)
+        {
+            navigationManager.NavigateTo(NavUrlHelpers.EditPostStub + Post.NormalizedTitle, true);
+        }
+    }
+
+    /// <summary>
+    /// Handles the edit category button click
+    /// </summary>
+    protected void EditCategory()
+    {
+        if (Category != null)
+        {
+            navigationManager.NavigateTo(NavUrlHelpers.EditCategoryUrlStub + Category.CategoryNameNormalized, true);
+        }
+    }
+
+    /// <summary>
+    /// Handles the create post button click
+    /// </summary>
+    protected void CreatePost()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.CreatePostUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the create category button click
+    /// </summary>
+    protected void CreateCategory()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.CreateCategoryUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the create author button click
+    /// </summary>
+    protected void CreateAuthor()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.CreateAuthorUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the manage posts button click
+    /// </summary>
+    protected void ManagePosts()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.ManagePostsUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the manage categories button click
+    /// </summary>
+    protected void ManageCategories()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.ManageCategoriesUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the manage authors button click
+    /// </summary>
+    protected void ManageAuthors()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.ManageAuthorsUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the sign out button click
+    /// </summary>
+    protected void SignOut()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.LogoutUrlStub, true);
+    }
+
+    /// <summary>
+    /// Handles the login button click
+    /// </summary>
+    protected void Login()
+    {
+        navigationManager.NavigateTo(NavUrlHelpers.LoginUrlStub, true);
+    }
+}
+

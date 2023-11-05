@@ -35,7 +35,11 @@ namespace Blazor.Blog.Areas.Account.Pages
             {
                 var identity = new IdentityUser { UserName = Creds!.Email, Email = Creds!.Email };
                 var result = await _userManager.CreateAsync(identity, Creds!.Password);
-                if (result.Succeeded) return LocalRedirect(ReturnUrl);
+                if (result.Succeeded)
+                {
+                    var result2 = await _signInManager.PasswordSignInAsync(Creds!.Email, Creds!.Password, false, lockoutOnFailure: false);
+                    if (result2.Succeeded) return LocalRedirect(ReturnUrl);
+                }
             }
             return Page();
         }

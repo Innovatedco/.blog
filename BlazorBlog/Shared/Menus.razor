@@ -1,0 +1,13 @@
+﻿<CascadingValue Value="Post" Name="Post">
+    <CascadingValue Value="Category" Name="Category">
+        <MobileEditMenu/>
+        <EditMenu/>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public BlogPost Post { get; set; } = default!;
+    [Parameter]
+    public BlogCategory Category { get; set; } = default!;
+    }

@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\custom-bootstrap.css" />
+    <Content Remove="wwwroot\css\custom-bootstrap.scss" />
+    <Content Remove="wwwroot\css\oldbootstrap.min.css" />
+    <Content Remove="wwwroot\css\oldbootstrap.min.css.map" />
+    <Content Remove="wwwroot\css\package-lock.json" />
+    <Content Remove="wwwroot\css\package.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.13" />
@@ -34,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 

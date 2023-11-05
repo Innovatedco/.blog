@@ -3,16 +3,16 @@
 @inherits DataPage
 @inject NavigationManager navMan
 @attribute [Authorize]
-<EditMenu />
+<Menus />
 <section>
     <div id="editor">
         <EditForm Model="@Post" OnValidSubmit="@Submit">
             <h3 class="title">@title</h3>
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" />
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="my-3 vw-100">
-                <RadzenFormField Text="Post Title" Variant="@variant" Style="width:30%">
-                    <RadzenTextBox @bind-Value="Post.Title" Style="width:30%" Placeholder="Post Title" />
+            <RadzenStack Orientation="@OrientationDirection" AlignItems="@Alignment" Gap="0.5rem" class="my-3 vw-100">
+                <RadzenFormField Text="Post Title" Variant="@variant">
+                    <RadzenTextBox @bind-Value="Post.Title" Placeholder="Post Title" />
                 </RadzenFormField>
                 <ValidationMessage For="() => Post.Title" class="text-danger" />
                 <RadzenFormField Text="Blog Category" Variant="@variant">
@@ -21,30 +21,29 @@
                 <RadzenFormField Text="Author" Variant="@variant">
                     <RadzenDropDown @bind-Value=@Post.AuthorId Data=@Authors TextProperty="AuthorName" ValueProperty="AuthorId" Placeholder="Select" TValue="int" />
                 </RadzenFormField>
-                <div class="mt-1 mx-3">
+                <div class="mt-1">
                 <RadzenCheckBox @bind-Value=@Post.Published Name="Published" />
                 <RadzenLabel Component="Published" Text="Published" />
                 </div>
-                <div class ="mt-1 mx-1">
+                <div class ="mt-1">
                 <RadzenCheckBox @bind-Value=@Post.Archived Name="Deleted" />
                 <RadzenLabel Component="Deleted" Text="Deleted" />
                 </div>
             </RadzenStack>
             <RadzenHtmlEditor @bind-Value=@Post.Post style="height: 550px;" UploadUrl="upload/image" class="mb-3" Mode="HtmlEditorMode.Source" />
-            <button name="save" @ref="submit" type="submit" class="btn btn-primary form-check form-control mt-1 w-15">Save</button>
-            
+            <button name="save" @ref="submit" type="submit" class="btn btn-primary mt-1">Save</button>            
             @if (IsUpdate)
             {
-                <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning form-check form-control mt-1 w-15 ml-1">Cancel</button>
-                <button name="delete" type="button" @onclick=Delete class="btn btn-danger form-check form-control mt-1 w-15">Delete</button>
+                <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning mt-1 ms-1">Cancel</button>
+                <button name="delete" type="button" @onclick=Delete class="btn btn-danger mt-1">Delete</button>
             }
-            <button name="preview" type="submit" @onclick=@(() => IsPreview = true) class="btn btn-success form-check form-control mt-1 w-15 ml-1">Preview</button>
+            <button name="preview" type="submit" @onclick=@(() => IsPreview = true) class="btn btn-success mt-1 ms-1">Preview</button>
         </EditForm>
     </div>
 </section>
+<RadzenMediaQuery Query="(max-width: 960px)" Change=@OnChange />
 @code {
     #region MemberVariables
-
     /// <summary>
     /// Url parameter is used to retrieve the post
     /// </summary>
@@ -84,7 +83,14 @@
     /// Sets whether the page redirects to the preview page as the submit handler is used for both submit and preview buttons
     /// </summary>
     public bool IsPreview { get; set; } = false;
-
+    /// <summary>
+    /// Sets the Orientation of the Rad Stack based upon the media query
+    /// </summary>
+    public Orientation OrientationDirection { get; set; } = Orientation.Horizontal;
+    /// <summary>
+    /// Sets the alignment of the Rad Stack based upon the media query
+    /// </summary>
+    public AlignItems Alignment { get; set; } = AlignItems.Center;
     #endregion
 
     /// <summary>
@@ -168,5 +174,24 @@
             await BlogPostService.ArchiveBlogPost(Post);
             navMan.NavigateTo(NavUrlHelpers.ManagePostsUrlStub, true);
         }        
+    }
+
+    /// <summary>
+    /// Handles the media query event which fires when the max-width 960px breakpoint is met
+    /// and modifies form element orientation accordingly
+    /// </summary>
+    /// <param name="matches"></param>
+    private void OnChange(bool matches)
+    {
+        if (!matches)
+        {
+            OrientationDirection = Orientation.Horizontal;
+            Alignment = AlignItems.Center;
+        }
+        else
+        {
+            OrientationDirection = Orientation.Vertical;
+            Alignment = AlignItems.Start;
+        }
     }
 }
