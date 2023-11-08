@@ -75,12 +75,15 @@ cd BlazorBlog
  5. Additionally you can brand the blog by replacing the following files located in the BlazorBlog wwwroot/images folder:
     - logo.png (960px X 150px)
     - logosmall.png (630px X 100px)
- 6. Uncomment the following line in program.cs (line 16)
+ 6. Uncomment the following line in program.cs (line 16).
  ```C#
  options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
  ```
+ \
  <img src="programcs.png"/>
- 6. Run the project
+ 
+ 
+ 7. Build & run the project.
 
  # Set Up
  If everything went well then the project is up and running, so you need to create a user login:
@@ -89,7 +92,9 @@ cd BlazorBlog
 It is __ESSENTIAL__ that you comment out or delete (recommended) this line in your program.cs as soon as possible to prevent the creation of any new user logins.\
  🟩 __NOTE__ 🟩\
 You can have multiple logins and multiple authors, but since it is a single blog, 
-any user is able to create/edit/archive(delete)/draft any post, create/edit/delete categories and create/edit authors. Authors are NOT linked to logins. 
+any user is able to create/edit/archive(delete)/draft any post, create/edit/delete categories and create/edit authors. Authors are NOT linked to logins.
+
  <img src="createlogin.png"/>
+ 
  2. Now you can edit the existing Post/Category/Author or create and post your own categories/authors/blog posts etc. Enjoy!
  
