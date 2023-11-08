@@ -47,11 +47,12 @@ namespace Blazor.Blog.Data
 
         public async Task<BlogPost>? GetBlogPostByUrl(string normalizedTitle)
         {
-            return await _context.BlogPost
+            var result = await _context.BlogPost
             .Include(x => x.Category)
             .Include(x => x.Author)
             .Where(x => x.NormalizedTitle == normalizedTitle)
             .FirstOrDefaultAsync();
+            return result;
         }
 
         public async Task<IEnumerable<BlogPost>> GetBlogPostsByCategory(string category)

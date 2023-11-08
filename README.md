@@ -1,15 +1,15 @@
 ﻿<h1 align="center">
 
-<img src="Assets/logosmall.png"/>
+<img src="logosmall.png"/>
 <br/>
-BlazorBlog
+.blog
 </h1>
 
-### **BlazorBlog** is a new, open source, simple single blog platform, built with Blazor Server. 
+### **.blog** is a new, open source, simple single blog platform, built with Blazor Server. 
 
-BlazorBlog is designed to be simple, flexible and extensible.
+.blog is designed to be simple, flexible and extensible.
 
-Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0).
+Built against [.NET 7 Blazor](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0).
 
 ## Features
 
@@ -23,7 +23,7 @@ Built against [.NET Blazor7](https://learn.microsoft.com/en-us/aspnet/core/blazo
 
 ## License
   
-- BlazorBlog is licensed under the [MIT License](https://github.com/sedgey/BlazorBlog/blob/master/LICENSE.txt)
+- .blog is licensed under the [MIT License](https://github.com/sedgey/BlazorBlog/blob/master/LICENSE.txt)
 
 ## Getting started
 
@@ -79,7 +79,7 @@ cd BlazorBlog
  ```C#
  options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
  ```
- <img src="Assets/programcs.png"/>
+ <img src="programcs.png"/>
  6. Run the project
 
  # Set Up
@@ -90,6 +90,6 @@ It is __ESSENTIAL__ that you comment out or delete (recommended) this line in yo
  🟩 __NOTE__ 🟩\
 You can have multiple logins and multiple authors, but since it is a single blog, 
 any user is able to create/edit/archive(delete)/draft any post, create/edit/delete categories and create/edit authors. Authors are NOT linked to logins. 
- <img src="Assets/createaccount.png"/>
+ <img src="createlogin.png"/>
  2. Now you can edit the existing Post/Category/Author or create and post your own categories/authors/blog posts etc. Enjoy!
  
