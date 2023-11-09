@@ -52,6 +52,12 @@
 	  <ProjectReference Include="..\BlazorBlog\Blazor.Blog.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Shared\MobileEditMenu.Tests.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
+	</ItemGroup>
+
 
 
 </Project>
