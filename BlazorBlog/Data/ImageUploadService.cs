@@ -35,7 +35,7 @@ namespace Blazor.Blog.Data
         /// </summary>
         /// <param name="controller"></param>
         /// <param name="fileName"></param>
-        /// <returns></returns>
+        /// <returns>string url</returns>
         public string GetUrl(Controller controller, string fileName)
         {
             string url = controller.Url.Content($"~/upload/image/{fileName}");
@@ -47,7 +47,7 @@ namespace Blazor.Blog.Data
         /// </summary>
         /// <param name="controller"></param>
         /// <param name="fileName"></param>
-        /// <returns></returns>
+        /// <returns>string avatarUrl</returns>
         public string GetAvatarUrl(Controller controller, string fileName)
         {
             string url = controller.Url.Content($"~/upload/image/author/small-{fileName}");

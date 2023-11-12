@@ -1,6 +1,5 @@
 ﻿using Blazor.Blog.Models;
 using Blazor.Blog.Tests.HelperClasses;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -53,12 +52,14 @@ namespace Blazor.Blog.Tests.Data
         public async Task ShouldNotReturnABlogPostIfAnInvalidGuidIsProvided()
         {
             // Arrange
-            var arrangeResult = ArrangeHelpers.ArrangeWithResult();;
-
+            var arrangeResult = ArrangeHelpers.ArrangeWithResult();
             var guid = new System.Guid();
 
-            // Act/Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => arrangeResult.BlogPostServiceEF.GetBlogPostByID(guid));
+            // Act
+            var result = await arrangeResult.BlogPostServiceEF.GetBlogPostByID(guid);
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact(DisplayName = "Should return a blog post if a valid url is provided")]

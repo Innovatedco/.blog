@@ -79,8 +79,11 @@ namespace Blazor.Blog.Tests.Data
             var arrangeResult = ArrangeHelpers.ArrangeWithResult();
             var guid = new Guid();
 
-            // Act/Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => arrangeResult.BlogCategoryServiceEF.GetCategoryById(guid));
+            // Act
+            var result = await arrangeResult.BlogCategoryServiceEF.GetCategoryById(guid);
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact(DisplayName = "Should get Blog Category by Url")]
@@ -140,9 +143,10 @@ namespace Blazor.Blog.Tests.Data
 
             // Act
             await arrangeResult.BlogCategoryServiceEF.DeleteBlogCategory(category);
+            var result = await arrangeResult.BlogCategoryServiceEF.GetCategoryById(id);
 
             // Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => arrangeResult.BlogCategoryServiceEF.GetCategoryById(id));
+            Assert.Null(result);
         }
     }
 }

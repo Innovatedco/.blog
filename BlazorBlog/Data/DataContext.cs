@@ -15,6 +15,10 @@ namespace Blazor.Blog.Data
         public DbSet<BlogCategory> BlogCategory { get; set; }
         public DbSet<Author> Author { get; set; }
 
+        /// <summary>
+        /// Seed data for new install
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -33,9 +37,10 @@ namespace Blazor.Blog.Data
                 "<p>And that's it! You can now log in and edit this post/category/author or create your own. Happy Blogging</p>";
             var post1 = "<img src=\"/upload/image/fc635c36-a3af-4da7-977b-f4cc86b450e3.png\" class=\"w-100 mb-3\">" +
                 "<p>You can add or change icons for categories easily on the Category Create or Category edit page.</p>" +
-                "<p>We've alreday added the required font awesome CSS and Javascript so just search for the icon you would like to use on the <a href=\"https://fontawesome.com/search?o=r&m=free\">font awesome site.</a></p>" +
+                "<p>We've already added the required font awesome CSS and Javascript so just search for the icon you would like to use on the <a href=\"https://fontawesome.com/search?o=r&m=free\">font awesome site.</a></p>" +
                 "<p>You should only choose from the free icons and it's as simple as adding the css class to the icon text box</p>\r\n<p>Note: the fa-solid class is automatically added, so you only need add the icon class e.g. fa-newspaper," +
-                " however, for fa-brand icons both classes should be added e.g. fa-brand fa-microsoft</p>";
+                " however, for fa-brand icons both classes should be added e.g. fa-brand fa-microsoft. </p>" +
+                "<p>You can also check the icon code by clicking the check button, if the icon code is correct, then the icon will appear in the icon box.</p>";
             var post2 = "<img src=\"/upload/image/f9472e3f-659d-44ba-b887-2df3d20fc472.jpg\" class=\"w-100 mb-3\"/>" +
                 "<p>You can also add code snippets to posts using the highlighter.js plugin, the code should be enclosed in a &ltpre&gt;&ltcode&gt;Code goes here&lt/pre&gt;&lt/code&gt; block. </p>" +
                 "<p>We have already added some language specific formatting for C#, Html &amp; Json. Just add the css class lang-csharp to the code tag. </p>" +

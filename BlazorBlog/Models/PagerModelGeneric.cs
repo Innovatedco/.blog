@@ -2,6 +2,7 @@
 {
     public class PagerModelGeneric<T>
     {
+        #region Member variables
         /// <summary>
         /// The total number of pages based on page size and list length
         /// </summary>
@@ -37,6 +38,7 @@
 
         public IEnumerable<T>? CurrentItemList { get; set; }
         public IEnumerable<T>? ItemList {  get; set; }
+        #endregion
 
         /// <summary>
         /// Initializes anew instance of the pager model generic
@@ -56,6 +58,10 @@
             Page(1);
         }
 
+        /// <summary>
+        /// Performs a page operation using the provided page number
+        /// </summary>
+        /// <param name="newPage"></param>
         private void Page(int newPage)
         {
             var skip = (newPage - 1) * PageSize;
