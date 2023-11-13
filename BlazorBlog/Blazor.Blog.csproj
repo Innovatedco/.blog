@@ -29,8 +29,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Radzen.Blazor" Version="4.20.1" />
+    <PackageReference Include="Radzen.Blazor" Version="4.20.4" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

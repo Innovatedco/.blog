@@ -4,6 +4,7 @@
 {
     <meta name="description" content="@(siteNameStub + TextHelpers.FormatStub(BlogPost.Post, 200))" />
     <link rel="canonical" href="@(postUrlBase + BlogPost.NormalizedTitle)" />
+    <link rel="alternate" type="application/rss+xml" title="@siteName rss feed" href="/rss" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="@BlogPost.Title" />
@@ -26,6 +27,7 @@ else if(BlogCategory != null)
 {
     <meta name="description" content="@(siteNameStub + BlogCategory.CategoryName)" />
     <link rel="canonical" href="@(categoryUrlBase + BlogCategory.CategoryNameNormalized)" />
+    <link rel="alternate" type="application/rss+xml" title="@siteName rss feed" href="/rss" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="@BlogCategory.CategoryName" />
@@ -40,6 +42,7 @@ else
 {
     <meta name="description" content="@tagLineStub" />
     <link rel="canonical" href="@blogUrlBase" />
+    <link rel="alternate" type="application/rss+xml" title="@siteName rss feed" href="/rss" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="@siteName" />

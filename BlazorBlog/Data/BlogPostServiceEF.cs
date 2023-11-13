@@ -36,7 +36,7 @@ namespace Blazor.Blog.Data
         public async Task<IEnumerable<BlogPost>> GetAllBlogPosts()
         {
             return await _context.BlogPost
-                .Where(x => !x.Archived && x.Published)
+                .Where(x => !x.Archived && x.Published && x.Created.Date <= DateTime.Now.Date)
                 .Include(x => x.Category)
                 .OrderByDescending(x => x.Created)
                 .ToListAsync();
@@ -91,7 +91,7 @@ namespace Blazor.Blog.Data
         public async Task<IEnumerable<BlogPost>> GetBlogPostsByCategory(string category)
         {
             var result = await _context.BlogPost
-            .Where(x => !x.Archived && x.Published)
+            .Where(x => !x.Archived && x.Published && x.Created.Date <= DateTime.Now.Date)
             .Include(x => x.Category)
             .OrderByDescending(x => x.Created)
             .Where(x => x.Category!.CategoryNameNormalized == category)
@@ -106,7 +106,7 @@ namespace Blazor.Blog.Data
         public async Task<Tuple<IEnumerable<BlogPost>, BlogPost>> GetBlogPostsForHomePage()
         {
             var all = await _context.BlogPost
-                .Where(x => !x.Archived && x.Published)
+                .Where(x => !x.Archived && x.Published && x.Created.Date <= DateTime.Now.Date)
                 .Include(x => x.Category)
                 .Include(x => x.Author)
                 .OrderByDescending(x => x.Created)
@@ -126,7 +126,7 @@ namespace Blazor.Blog.Data
         public async Task<IEnumerable<BlogPost>> GetBlogPostSlice(int take, int skip)
         {
             return await _context.BlogPost
-            .Where(x => !x.Archived && x.Published)
+            .Where(x => !x.Archived && x.Published && x.Created.Date <= DateTime.Now.Date)
             .Include(x => x.Category)
             .OrderByDescending(x => x.Created)
             .Skip(skip)

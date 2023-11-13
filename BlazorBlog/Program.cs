@@ -15,6 +15,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToAreaPage("Account","/Logout");
     options.Conventions.AllowAnonymousToAreaPage("Account", "/Create");
     options.Conventions.AddPageRoute("/Sitemap", "Sitemap.xml");
+    options.Conventions.AddPageRoute("/RSS", "rss.xml");
 });
 builder.Services.AddServerSideBlazor();
 var cs = builder.Configuration.GetConnectionString("default");

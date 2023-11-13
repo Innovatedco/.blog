@@ -21,6 +21,9 @@
                 <RadzenFormField Text="Author" Variant="@variant">
                     <RadzenDropDown @bind-Value=@Post.AuthorId Data=@Authors TextProperty="AuthorName" ValueProperty="AuthorId" Placeholder="Select" TValue="int" />
                 </RadzenFormField>
+                <RadzenFormField Text="Publish Date" Variant="@variant">
+                    <RadzenDatePicker @bind-Value=@Post.Created ShowTime="false" DateFormat="yyyy/MM/dd" />
+                </RadzenFormField>
                 <div class="mt-1">
                 <RadzenCheckBox @bind-Value=@Post.Published Name="Published" />
                 <RadzenLabel Component="Published" Text="Published" />
@@ -30,7 +33,7 @@
                 <RadzenLabel Component="Deleted" Text="Deleted" />
                 </div>
             </RadzenStack>
-            <RadzenHtmlEditor @bind-Value=@Post.Post style="height: 550px;" UploadUrl="upload/image" class="mb-3" Mode="HtmlEditorMode.Source" />
+            <RadzenHtmlEditor @bind-Value=@Post.Post style="height: 500px;" UploadUrl="upload/image" class="mb-3" Mode="HtmlEditorMode.Source" />
             <button name="save" @ref="submit" type="submit" class="btn btn-primary mt-1">Save</button>            
             @if (IsUpdate)
             {

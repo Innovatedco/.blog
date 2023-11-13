@@ -118,7 +118,7 @@
     {
         model = await BlogPostService.GetBlogPostByUrl(Url!)!;
 
-        if (model != null && model.Published && !model.Archived)
+        if (model != null && model.Published && !model.Archived && model.Created.Date <= DateTime.Now.Date)
         {
             var result = await BlogPostService.GetBlogPostSlice(10, 0);
             result = result.Where(x => x.NormalizedTitle != Url);
