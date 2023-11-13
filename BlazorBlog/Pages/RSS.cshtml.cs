@@ -9,6 +9,7 @@ using Blazor.Blog.Models;
 using Microsoft.AspNetCore.Components;
 using System.ServiceModel.Syndication;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Blazor.Blog.Pages
 {
@@ -57,7 +58,9 @@ namespace Blazor.Blog.Pages
             var items = blogPosts.Select(x => new SyndicationItem(
                     x.Title,
                     TextHelpers.FormatStub(x.Post, 50),
-                    new Uri(baseUrl + postRoute + x.NormalizedTitle)
+                    new Uri(baseUrl + postRoute + x.NormalizedTitle),
+                    x.NormalizedTitle,
+                    x.Created
                     ));
             var feed = new SyndicationFeed(
                 siteName,
@@ -65,12 +68,20 @@ namespace Blazor.Blog.Pages
                 new Uri(baseUrl),
                 items
             );
+
+            XNamespace atom = "http://www.w3.org/2005/Atom";
+            feed.ElementExtensions.Add(
+                new XElement(atom + "link",
+                new XAttribute("href", $"{baseUrl}rss"),
+                new XAttribute("rel", "self"),
+                new XAttribute("type", "application/rss+xml")));
+
             // Create the XML Writer with it's settings
             var settings = new XmlWriterSettings
             {
                 Encoding = Encoding.UTF8,
                 NewLineHandling = NewLineHandling.Entitize,
-                NewLineOnAttributes = true,
+                NewLineOnAttributes = false,
                 Indent = true, // Makes it easier to read for humans
                 Async = true, // You can omit this if you don't use the async API
             };
