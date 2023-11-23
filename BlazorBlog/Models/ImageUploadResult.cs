@@ -1,6 +1,6 @@
 ﻿namespace Blazor.Blog.Models
 {
-    public class AvatarUploadResult
+    public class ImageUploadResult
     {
         public string url { get; set; } = default!;
     }

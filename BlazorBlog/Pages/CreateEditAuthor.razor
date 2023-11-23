@@ -94,8 +94,6 @@
 
     /// <summary>
     /// Handles the submit button click, since the action is a form post, the method only runs if the model is valid.
-    /// The focus is set on the submit button first to avoid issues with the HtmlEditor,
-    /// who's value is only updated after focus is lost.
     /// </summary>
     private async Task Submit()
     {
@@ -108,16 +106,6 @@
             await AuthorService.CreateAuthor(Author);
         }
         navMan.NavigateTo(NavUrlHelpers.ManageAuthorsUrlStub, true);
-    }
-
-    /// <summary>
-    /// handles the invalid submit event
-    /// </summary>
-    /// <param name="editContext"></param>
-    private void OnInvalidSubmit(EditContext editContext)
-    {
-        var model = editContext.Model;
-        editContext.Validate();
     }
 
     /// <summary>
@@ -141,7 +129,7 @@
                 AllowTrailingCommas = true
             };
 
-        var avatarResult = JsonSerializer.Deserialize<AvatarUploadResult>(args.RawResponse, options);
+        var avatarResult = JsonSerializer.Deserialize<ImageUploadResult>(args.RawResponse, options);
         Author.AuthorIcon = avatarResult.url;
         await InvokeAsync(StateHasChanged);
     }

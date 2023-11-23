@@ -16,7 +16,8 @@ namespace Blazor.Blog.Helpers
         public static readonly string production = "Production";
 
         public static readonly string BaseUrl = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("CustomSettings").GetSection("ProdBlogUrl").Value!;
-        public static readonly string BaseUrlWithTail = BaseUrl + "/";
+        public static readonly string Tail = "/";
+        public static readonly string BaseUrlWithTail = BaseUrl + Tail;
         public static readonly string PostUrlStub = "/post/";
         public static readonly string PostUrl = BaseUrl + PostUrlStub;
         public static readonly string CategoryUrlStub = "/category/";
@@ -47,6 +48,8 @@ namespace Blazor.Blog.Helpers
         public static readonly string FacebookUrl = "https://www.facebook.com/sharer.php?u=";
         public static readonly string PreviewUrlStub = "/preview/";
         public static readonly string PreviewUrl = BaseUrl + PreviewUrlStub;
+        public static readonly string EditSiteSettingsStub = "/editsitesettings";
+        public static readonly string EditSiteSettingsUrl = BaseUrl + EditSiteSettingsStub;
         #endregion
 
         /// <summary>

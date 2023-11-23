@@ -9,7 +9,7 @@ namespace Blazor.Blog.Tests.Models
         public void ShouldValidateAValidModel()
         {
             // Arrange
-            var model = new AvatarUploadResult();
+            var model = new ImageUploadResult();
             model.url = "c.com";
 
             // Act

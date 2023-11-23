@@ -38,9 +38,15 @@ namespace Blazor.Blog.Pages
             TagLine = _configuration["CustomSettings:TagLine"]!;
         }
 
+        /// <summary>
+        /// Handles the get request for the RSS feed
+        /// </summary>
+        /// <returns>formatted rss document</returns>
         public async Task<IActionResult> OnGet()
         {
+            // gets a list of published blog posts
             var blogPosts = await _blogPostService.GetAllBlogPosts();
+            // selects out Syndication items from the list
             var items = blogPosts.Select(x => new SyndicationItem(
                     x.Title,
                     TextHelpers.FormatStub(x.Post, 50),

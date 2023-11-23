@@ -15,6 +15,8 @@ namespace Blazor.Blog.Data
         public DbSet<BlogCategory> BlogCategory { get; set; }
         public DbSet<Author> Author { get; set; }
 
+        public DbSet<SiteSettings> SiteSetings { get; set; }
+
         /// <summary>
         /// Seed data for new install
         /// </summary>
@@ -45,7 +47,21 @@ namespace Blazor.Blog.Data
                 "<p>You can also add code snippets to posts using the highlighter.js plugin, the code should be enclosed in a &ltpre&gt;&ltcode&gt;Code goes here&lt/pre&gt;&lt/code&gt; block. </p>" +
                 "<p>We have already added some language specific formatting for C#, Html &amp; Json. Just add the css class lang-csharp to the code tag. </p>" +
                 "<pre><code class=\"lang-csharp\">public void HelloWorld() => Console.Writeline(\"Hello .blog\");</code></pre>";                
-
+            
+            modelBuilder.Entity<SiteSettings>().HasData(
+                new SiteSettings
+                {
+                    SiteId = Guid.NewGuid(),
+                    SiteName = ".blog",
+                    SiteTagLine = "Talking about life, the universe and everything",
+                    SiteDevUrl = "https://localhost:7079",
+                    SiteProdUrl = "https://blazor.blog",
+                    SiteLogo = "upload/image/logo/logo.png",
+                    SiteLogoSmall ="upload/image/logosmall/logosmall.png"
+                }
+            );
+            
+            
             modelBuilder.Entity<Author>().HasData(
                 new Author
                 {
@@ -99,7 +115,7 @@ namespace Blazor.Blog.Data
                     BlogPostId = blogPostId1,
                     AuthorId = 1,
                     BlogCategoryId = blogCategoryId,
-                    Title = "Getting started",
+                    Title = "Getting started with .blog tips and tricks",
                     Created = date1,
                     Updated = date1,
                     NormalizedTitle = "getting-started",

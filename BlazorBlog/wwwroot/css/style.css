@@ -1078,6 +1078,10 @@ html {
     align-items: flex-end;
 }
 
+.pager a {
+    cursor: pointer;
+}
+
 @media (max-width: 960px) {
     .pushmenu {
         position: relative;

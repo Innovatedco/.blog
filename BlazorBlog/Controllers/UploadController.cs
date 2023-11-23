@@ -50,5 +50,41 @@ namespace Blazor.Blog.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost("upload/logo")]
+        [Authorize]
+        public IActionResult Logo(IFormFile file)
+        {
+            try
+            {
+                var extension = _imageUploadService.GetExtension(file);
+                var fileName = _imageUploadService.GetFileName(extension);
+                _imageUploadService.SaveLogo(file, fileName);
+                var url = _imageUploadService.GetLogoUrl(this, fileName);
+                return Ok(new { Url = url });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("upload/logosmall")]
+        [Authorize]
+        public IActionResult LogoSmall(IFormFile file)
+        {
+            try
+            {
+                var extension = _imageUploadService.GetExtension(file);
+                var fileName = _imageUploadService.GetFileName(extension);
+                _imageUploadService.SaveLogoSmall(file, fileName);
+                var url = _imageUploadService.GetLogoSmallUrl(this, fileName);
+                return Ok(new { Url = url });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace Blazor.Blog.Tests.HelperClasses
             AuthorName = "Test Name",
             AuthorIcon = "TestIcon"
         };
+
         /// <summary>
         /// Builds a base blog post fixture with circular reference fix
         /// </summary>
@@ -54,11 +55,17 @@ namespace Blazor.Blog.Tests.HelperClasses
         public static IEnumerable<BlogPost> BuildPublishableBlogPostsFixture(int count)
         {
             var baseFixture = BuildBaseBlogPostFixture();
+            baseFixture.Customizations.Add(
+            new RandomDateTimeSequenceGenerator(
+                minDate: DateTime.Now.AddDays(-15),
+                maxDate: DateTime.Now
+            ));
             var posts = baseFixture.Build<BlogPost>()
                 .With(x => x.Published, true)
                 .With(x => x.Archived, false)
                 .With(x => x.AuthorId, 1)
                 .With(x => x.Author, _author)
+                .With(x => x.Created, DateTime.Now)
                 .CreateMany(count).ToList();
             return posts;
         }

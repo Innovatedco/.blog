@@ -1,0 +1,172 @@
+﻿@page "/editsitesettings"
+@inherits DataPage
+@inject NavigationManager navMan
+@attribute [Authorize]
+<Menus />
+
+<section>
+    <div id="editor">
+        <EditForm Model="@SiteSettings" OnValidSubmit="@Submit">
+            <h3 class="title">@title</h3>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <RadzenStack Orientation="OrientationDirection" AlignItems="Alignment" Gap="0.5rem" class="my-3 vw-100">
+                <RadzenFormField Text="Site Name" Variant="@variant">
+                    <RadzenTextBox Name="site-name" @bind-Value="SiteSettings.SiteName" Placeholder="Site Name" />
+                </RadzenFormField>
+                <RadzenFormField Text="Production Url" Variant="@variant">
+                    <RadzenTextBox Name="production-urle" @bind-Value="SiteSettings.SiteProdUrl" Placeholder="Production Url" />
+                </RadzenFormField>
+                <RadzenFormField Text="Development Url" Variant="@variant">
+                    <RadzenTextBox Name="development-url" @bind-Value="SiteSettings.SiteDevUrl" Placeholder="Developmentn Url" />
+                </RadzenFormField>
+            </RadzenStack>
+            <RadzenFormField Text="Site Tagline" Variant="@variant" class="w-100">
+                <RadzenTextArea Name="site-tagline" @bind-Value="SiteSettings.SiteTagLine" Placeholder="Site Tagline" Rows="3" />
+            </RadzenFormField>
+            <RadzenFormField Text="Site Logo" Variant="@variant" class="w-100">
+                <div class="container">
+                    <div class="row p-2">
+                        <div class="col-2">
+                            <RadzenUpload Accept="image/*" Url="upload/logo" ChooseText="Select Image" @bind-value="SiteSettings.SiteLogo" Complete="@((args) => OnLogoUploadCompleted(args))" />
+                        </div>
+                        <div class="col-10">
+                            <Logo Name="logo" Url="@SiteSettings.SiteLogo" Classes="img-fluid" />
+                        </div>
+                    </div>
+                </div>
+            </RadzenFormField>
+            <RadzenFormField Text="Site Logo Small" Variant="@variant" class="w-100">
+                <div class="container">
+                    <div class="row p-2">
+                        <div class="col-2">
+                            <RadzenUpload Accept="image/*" Url="upload/logosmall" ChooseText="Select Image" @bind-value="SiteSettings.SiteLogoSmall" Complete="@((args) => OnLogoSmallUploadCompleted(args))" />
+                        </div>
+                        <div class="col-10">
+                            <Logo Name="logo-small" Url="@SiteSettings.SiteLogoSmall" Classes="img-fluid" />
+                        </div>
+                    </div>
+                </div>
+            </RadzenFormField><br/>
+             <button name="save" type="submit" class="btn btn-primary mt-1">Save</button>
+            <button name="cancel" type="button" @onclick=Cancel class="btn btn-warning mt-1 me-1">Cancel</button>
+        </EditForm>        
+    </div>
+</section>
+<RadzenMediaQuery Query="(max-width: 960px)" Change=@OnChange />
+
+@code {
+    #region Member Variables
+    /// <summary>
+    /// Sets the title tag
+    /// </summary>
+    public string? title { get; set; } = "Edit site settings";
+    /// <summary>
+    /// gets sets the SiteSettings Parameter
+    /// </summary>
+    [Parameter]
+    public SiteSettings SiteSettings { get; set; } = new SiteSettings();
+    /// <summary>
+    /// Sets the variant for the RadzenStack
+    /// </summary>
+    Variant variant = Variant.Outlined;
+    /// <summary>
+    /// Sets the Orientation of the Rad Stack based upon the media query
+    /// </summary>
+    public Orientation OrientationDirection { get; set; } = Orientation.Horizontal;
+    /// <summary>
+    /// Sets the alignment of the Rad Stack based upon the media query
+    /// </summary>
+    public AlignItems Alignment { get; set; } = AlignItems.Center;
+    #endregion
+
+    /// <summary>
+    /// Sets parameters
+    /// This has to run after render as the post data is retrieved using a URL parameter
+    /// </summary>
+    /// <param name="firstRender"></param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await SiteSettingsService.GetSiteSettings();
+            if (result != null)
+            {
+                SiteSettings = result;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles the submit button click, since the action is a form post, the method only runs if the model is valid.
+    /// </summary>
+    private async Task Submit()
+    {
+        await SiteSettingsService.UpdateSiteSettings(SiteSettings);
+    }
+
+    /// <summary>
+    /// Handles the cancel button click, since the cancel button is only available on the edit page,
+    /// canceling redirects to the post page
+    /// </summary> 
+    private void Cancel()
+    {
+        navMan.NavigateTo(NavUrlHelpers.Tail, true);
+    }
+
+    /// <summary>
+    /// Handles the uploaded event and updates the logo with the result
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    private async Task OnLogoUploadCompleted(UploadCompleteEventArgs args)
+    {
+        var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true
+            };
+
+        var imageUploadResult = JsonSerializer.Deserialize<ImageUploadResult>(args.RawResponse, options);
+        SiteSettings.SiteLogo = imageUploadResult!.url;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handles the uploaded event and updates the small logo with the result
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    private async Task OnLogoSmallUploadCompleted(UploadCompleteEventArgs args)
+    {
+        var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true
+            };
+
+        var imageUploadResult = JsonSerializer.Deserialize<ImageUploadResult>(args.RawResponse, options);
+        SiteSettings.SiteLogoSmall = imageUploadResult!.url;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handles the media query event which fires when the max-width 960px breakpoint is met
+    /// and modifies form element orientation accordingly
+    /// </summary>
+    /// <param name="matches"></param>
+    private async Task OnChange(bool matches)
+    {
+        if (!matches)
+        {
+            OrientationDirection = Orientation.Horizontal;
+            Alignment = AlignItems.Center;
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            OrientationDirection = Orientation.Vertical;
+            Alignment = AlignItems.Start;
+            await InvokeAsync(StateHasChanged);
+        }        
+    }
+}

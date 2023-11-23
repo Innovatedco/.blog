@@ -1,0 +1,17 @@
+﻿@if (Url != null)
+{
+    <img title="@Name" width="@Width" height="@Height" src="@Url" class="@(string.IsNullOrEmpty(Classes) ? null : " " + Classes)" />
+}
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = "logo";
+    [Parameter]
+    public string Url { get; set; } = default!;
+    [Parameter]
+    public string? Classes { get; set; } = null;
+    [Parameter]
+    public string? Width { get; set; } = null;
+    [Parameter]
+    public string? Height { get; set; } = null;
+}

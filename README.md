@@ -9,7 +9,7 @@
 
 .blog is designed to be simple, flexible and extensible.
 
-Built against [.NET 7 Blazor](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0).
+Built against [.NET 8.0 LTS Blazor](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-8.0).
 
 ## Features
 
@@ -19,7 +19,7 @@ Built against [.NET 7 Blazor](https://learn.microsoft.com/en-us/aspnet/core/blaz
 - GDPR built in.
 - Easily extensible.
 - SEO-friendly, meta tags and automatic sitemap creation.
-- Mobile-friendly responsive front end.
+- Mobile-friendly responsive design.
 
 ## License
   
