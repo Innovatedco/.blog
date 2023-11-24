@@ -2,16 +2,16 @@
 @inject IBlogCategoryService blogCategoryService
 @inject IAuthorService authorService
 @inject ISiteSettingsService siteSettingsService
-@inject IConfiguration configuration
+@inject GlobalSiteSettings globalSiteSettings
 
 @code {
     #region Member Variables
     public IBlogPostService BlogPostService { get; set; } = default!;
     public IBlogCategoryService BlogCategoryService { get; set; } = default!;
     public IAuthorService AuthorService { get; set; } = default!;
-    public ISiteSettingsService SiteSettingsService { get; set; } = default!;
-    public IConfiguration Configuration { get; set; } = default!;
     public string SiteName { get; set; } = default!;
+    public ISiteSettingsService SiteSettingsService { get; set; } = default!;
+    public GlobalSiteSettings GlobalSiteSettings { get; set; } = default!;
     #endregion
 
     /// <summary>
@@ -23,7 +23,7 @@
         BlogCategoryService = blogCategoryService;
         AuthorService = authorService;
         SiteSettingsService = siteSettingsService;
-        Configuration = configuration;
-        SiteName = configuration["CustomSettings:SiteName"]!;
+        GlobalSiteSettings = globalSiteSettings;
+        SiteName = GlobalSiteSettings.SiteSettings.SiteName;
     }
 }

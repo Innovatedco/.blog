@@ -1,4 +1,4 @@
-﻿@inject IConfiguration config
+﻿@inject GlobalSiteSettings globalSiteSettings
 
 @if(BlogPost != null)
 {
@@ -69,12 +69,13 @@ else
 
     protected override void OnInitialized()
     {
-        blogUrlBase = config!["CustomSettings:ProdBlogUrl"]!;
+        var settings = globalSiteSettings.SiteSettings;
+        blogUrlBase = settings.SiteProdUrl;
         postUrlBase = blogUrlBase + NavUrlHelpers.PostUrlStub;
         categoryUrlBase = blogUrlBase + NavUrlHelpers.CategoryUrlStub;
-        siteName = config!["CustomSettings:SiteName"]!;
+        siteName = settings.SiteName;
         siteNameStub = siteName + " | ";
-        tagLine = config!["CustomSettings:TagLine"]!;
+        tagLine = settings.SiteTagLine;
         tagLineStub = siteNameStub + tagLine;
     }
 }

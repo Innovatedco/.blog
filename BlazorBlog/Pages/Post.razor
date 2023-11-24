@@ -94,6 +94,7 @@
                 prevUrl = Url;
                 IsRefresh = false;
                 if (HasCode) await _jsRuntime.InvokeVoidAsync("hljs.highlightAll");
+                await InvokeAsync(StateHasChanged);
             }
             else IsRefresh = true;
         }
@@ -135,11 +136,12 @@
                     {
                         Manifest.Add(jsFile);
                         await _jsRuntime.InvokeVoidAsync("loadJs", jsFile);
+                        await InvokeAsync(StateHasChanged);
                     }
                 }
             }
             else HasCode = false;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
             NotFound = false;
         }
         else

@@ -2,6 +2,7 @@ using Blazor.Blog.Data;
 using Radzen;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Blazor.Blog.Globals;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddTransient<IBlogPostService, BlogPostServiceEF>();
 builder.Services.AddTransient<IBlogCategoryService, BlogCategoryServiceEF>();
 builder.Services.AddTransient<IAuthorService, AuthorServiceEF>();
 builder.Services.AddTransient<ISiteSettingsService, SiteSettingsServiceEf>();
+builder.Services.AddSingleton<GlobalSiteSettings>();
 builder.Services.AddTransient<IImageUploadService, ImageUploadService>();
 builder.Services.AddDbContextFactory<DataContext>(options =>
     options.UseSqlServer(cs));

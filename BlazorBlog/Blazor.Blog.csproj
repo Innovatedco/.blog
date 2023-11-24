@@ -14,7 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
-    <PackageReference Include="Radzen.Blazor" Version="4.20.4" />
+    <PackageReference Include="Radzen.Blazor" Version="4.21.4" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />

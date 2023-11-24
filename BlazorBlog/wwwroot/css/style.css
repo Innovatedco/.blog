@@ -1176,7 +1176,7 @@ html {
     }
 
     #header {
-        background-image: url("../images/logosmall.png");
+        /*background-image: url("../images/logosmall.png");*/
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
