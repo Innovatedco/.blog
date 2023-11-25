@@ -1,10 +1,12 @@
 ﻿@using Blazor.Blog.Helpers;
 @using Microsoft.AspNetCore.Components.Web
+@using Blazor.Blog.Globals
 @namespace Blazor.Blog.Areas.Identity.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@inject IConfiguration Configuration
+@inject GlobalSiteSettings GlobalSettings
 @{
-    var siteName = Configuration["CustomSettings:SiteName"];
+    var siteSettings = GlobalSettings.SiteSettings;
+    var siteName = siteSettings.SiteName;
     var year = DateTime.Now.Year;
 }
 
@@ -45,6 +47,14 @@
             })
         });
     </script>
+    <link rel="stylesheet" href="~/css/an-old-hope.min.css" />
+    <style>
+        @@media (max-width: 960px) {
+            #header {
+                background-image: url("../@siteSettings.SiteLogoSmall");
+            }
+        }
+    </style>
     <base href="~/" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
@@ -53,7 +63,7 @@
         <div id="content">
             <div id="header">
                 <a href='@("index")'>
-                    <img src="~/Images/logo.png"/>
+                    <component type="typeof(Blazor.Blog.Shared.Logo)" param-Url="@(siteSettings.SiteLogo)" render-mode="ServerPrerendered" />
                 </a>
             </div>
             <nav class="pushmenu pushmenu-left">

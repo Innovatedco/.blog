@@ -70,8 +70,7 @@
         <div id="content">
             <div id="header" class="bg-white w-100">
                 <a href="~/">
-                    @* <img src="~/Images/logo.png"/> *@
-                    <component type="typeof(Blazor.Blog.Shared.Logo)" param-Url="@("/Images/logo.png")" render-mode="ServerPrerendered" />
+                    <component type="typeof(Blazor.Blog.Shared.Logo)" param-Url="@(siteSettings.SiteLogo)" render-mode="ServerPrerendered" />
                 </a>
             </div>
 

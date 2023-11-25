@@ -32,7 +32,7 @@ namespace Blazor.Blog.Data
             var date2 = date1.AddDays(-1);
             var date3 = date1.AddDays(-2);
             var post = "<img src=\"/upload/image/09d237bc-6557-43e7-99b8-6835dc75fc9b.jpg\" class=\"w-100 mb-3\"/>" +
-                "<p>We added some posts to get you started, a category called news to store them in and an author called Admin. Don't worry, you can archive, unpublish or modify them at any time and create your own posts, categories and authors.</p>" +
+                "<p>We added some posts to get you started, a category called news to store them in and an author called Admin. Don't worry, you can archive, unpublish or modify them at any time and create your own posts, categories and authors. </p>" +
                 "<p>First things first, if you haven't already done so, you will need to un-comment line 16 in the program.cs file and rebuild.</p>" +
                 "<p>This will enable access to the login creation page, so go there now and create a login for yourself: <a href=\"/account/create\">/account/create</a>, use an email address and the password of your choice.</p>" +
                 "<p>Now you have an account, you MUST now comment out or delete (recommended) line 16 in program.cs (and rebuild).</p>" +
