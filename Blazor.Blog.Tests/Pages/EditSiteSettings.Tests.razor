@@ -1,0 +1,88 @@
+﻿@inherits TestContext
+
+@code {
+
+    [Fact(DisplayName = "Should render edit site settings")]
+    public async Task ShouldRenderEditSiteSettings()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var siteSettings = await arrangeResult.SiteSettingsServiceEF.GetSiteSettings();
+        var url = NavUrlHelpers.EditSiteSettingsUrl;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<EditSiteSettings>();
+        var handles = ActHelpers.GetEditSiteSettingsHandlesInstances(cut);
+
+        // Assert
+        Assert.Equal(siteSettings.SiteName, handles.SiteNameInput.Value);
+        Assert.Equal(siteSettings.SiteTagLine, handles.SiteTaglineInput.Value);
+        Assert.Equal(siteSettings.SiteProdUrl, handles.ProdUrlInput.Value);
+        Assert.Equal(siteSettings.SiteDevUrl, handles.DevUrlInput.Value);
+    }
+
+    [Fact(DisplayName = "Should update site settings")]
+    public async Task ShouldUpdateSiteSettings()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var author = arrangeResult.RandomPostDto.List.Select(x => x.Author).First();
+        var url = NavUrlHelpers.EditSiteSettingsUrl;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<EditSiteSettings>();
+        var handles = ActHelpers.GetEditSiteSettingsHandlesInstances(cut);
+        cut.Instance.SiteSettings.SiteName = "SiteNameUpdated";
+        cut.Instance.SiteSettings.SiteDevUrl = "DevUrlUpdated";
+        handles.SaveButton!.Click();
+        var updatedSiteSettings = await arrangeResult.SiteSettingsServiceEF.GetSiteSettings();
+
+        // Assert
+        Assert.True(updatedSiteSettings.SiteName == "SiteNameUpdated");
+        Assert.True(updatedSiteSettings.SiteDevUrl == "DevUrlUpdated");
+    }
+
+    [Fact(DisplayName = "Should cancel an update")]
+    public void ShouldCancel()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var url = NavUrlHelpers.EditSiteSettingsUrl;
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+        var navMan = ctx.Services.GetRequiredService<NavigationManager>();
+
+        // Act
+        var cut = ctx.RenderComponent<EditSiteSettings>();
+        var handles = ActHelpers.GetEditSiteSettingsHandlesInstances(cut);
+        handles.CancelButton!.Click();
+
+        // Assert
+        Assert.Equal(NavUrlHelpers.BaseUrl + NavUrlHelpers.Tail, navMan.Uri);
+    }
+}

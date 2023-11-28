@@ -12,6 +12,8 @@ using Radzen;
 using Radzen.Blazor;
 using Blazor.Blog.Pages;
 using AngleSharp.Dom;
+using Blazor.Blog.Globals;
+using static Blazor.Blog.Tests.HelperClasses.ActHelpers;
 
 namespace Blazor.Blog.Tests.HelperClasses
 {
@@ -30,6 +32,16 @@ namespace Blazor.Blog.Tests.HelperClasses
             {
                 if (listItem != null) context.Add(listItem);
             }
+            context.Add(new SiteSettings
+            {
+                SiteId = Guid.NewGuid(),
+                SiteName = "SiteName",
+                SiteTagLine = "SiteNameTagLine",
+                SiteDevUrl = "SiteDevUrl",
+                SiteProdUrl = "SiteProdUrl",
+                SiteLogo = "SiteLogo",
+                SiteLogoSmall = "SiteLogoSmall"
+            });
             context.SaveChanges();
             mockDbFactory.Setup(f => f.CreateDbContext()).Returns(context);
             return mockDbFactory;
@@ -41,6 +53,7 @@ namespace Blazor.Blog.Tests.HelperClasses
         public AuthorServiceEF AuthorServiceEF { get; set; } = default!;
         public BlogCategoryServiceEF BlogCategoryServiceEF { get; set; } = default!;
         public BlogPostServiceEF BlogPostServiceEF { get; set; } = default!;
+        public SiteSettingsServiceEf SiteSettingsServiceEF { get; set; } = default!;
         public RandomPostDto RandomPostDto { get; set; } = default!;
         public Mock<IDbContextFactory<DataContext>> MockDbFactory { get; set; } = default!;
     }
@@ -119,6 +132,9 @@ namespace Blazor.Blog.Tests.HelperClasses
                 ctx.Services.AddSingleton<IBlogPostService>(arrangeResult.BlogPostServiceEF);
                 ctx.Services.AddSingleton<IBlogCategoryService>(arrangeResult.BlogCategoryServiceEF);
                 ctx.Services.AddSingleton<IAuthorService>(arrangeResult.AuthorServiceEF);
+                ctx.Services.AddSingleton<ISiteSettingsService>(arrangeResult.SiteSettingsServiceEF);
+                var siteSettings = new GlobalSiteSettings(arrangeResult.SiteSettingsServiceEF);
+                ctx.Services.AddSingleton<GlobalSiteSettings>(siteSettings);
             }
             if (!arrangeConfig.UseData && arrangeConfig.UseDataBlogPost)
             {
@@ -176,11 +192,13 @@ namespace Blazor.Blog.Tests.HelperClasses
             var blogPostService = new BlogPostServiceEF(mockDbFactory.Object);
             var blogCategoryService = new BlogCategoryServiceEF(mockDbFactory.Object);
             var authorService = new AuthorServiceEF(mockDbFactory.Object);
+            var globalSiteSettingsService = new SiteSettingsServiceEf(mockDbFactory.Object);
             var arrangeResult = new ArrangeResult
             {
                 BlogCategoryServiceEF = blogCategoryService,
                 BlogPostServiceEF = blogPostService,
                 AuthorServiceEF = authorService,
+                SiteSettingsServiceEF = globalSiteSettingsService,
                 RandomPostDto = randomPostDto,
                 MockDbFactory = mockDbFactory
             };
@@ -460,6 +478,82 @@ namespace Blazor.Blog.Tests.HelperClasses
                 createEditAuthorHandlesInstances.CancelButton = null;
             }
             return createEditAuthorHandlesInstances;
+        }
+
+        // Site Settings handles
+        public class EditSiteSettingsHandles
+        {
+            public IElement? TitleTag { get; set; }
+            public IRenderedComponent<RadzenTextBox>? SiteNameInput { get; set; }
+            public IRenderedComponent<RadzenTextArea>? SiteTaglineInput { get; set; }
+            public IRenderedComponent<RadzenTextBox>? ProdUrlInput { get; set; }
+            public IRenderedComponent<RadzenTextBox>? DevUrlInput { get; set; }
+            public IRenderedComponent<RadzenUpload>? SiteLogo { get; set; }
+            public IRenderedComponent<RadzenUpload>? SiteLogoSmall { get; set; }
+            public IElement? SaveButton { get; set; }
+            public IElement? CancelButton { get; set; }
+        }
+        public class EditSiteSettingsHandlesInstances
+        {
+            public IElement? TitleTag { get; set; }
+            public RadzenTextBox? SiteNameInput { get; set; }
+            public RadzenTextArea? SiteTaglineInput { get; set; }
+            public RadzenTextBox? ProdUrlInput { get; set; }
+            public RadzenTextBox? DevUrlInput { get; set; }
+            public RadzenUpload? SiteLogo { get; set; }
+            public RadzenUpload? SiteLogoSmall { get; set; }
+            public IElement? SaveButton { get; set; }
+            public IElement? CancelButton { get; set; }
+        }
+        public static EditSiteSettingsHandles GetEditSiteSettingsHandles(IRenderedComponent<EditSiteSettings> cut)
+        {
+            var editSiteSettingsHandles = new EditSiteSettingsHandles
+            {
+                TitleTag = cut.Find("h3.title"),
+                SaveButton = cut.Find("button[name='save']")
+            };
+            var textBoxes = cut.FindComponents<RadzenTextBox>();
+            editSiteSettingsHandles.SiteNameInput = textBoxes.Where(x => x.Instance.Name == "site-name").First();
+            editSiteSettingsHandles.SiteTaglineInput = cut.FindComponent<RadzenTextArea>();
+            editSiteSettingsHandles.ProdUrlInput = textBoxes.Where(x => x.Instance.Name == "prod-url").First();
+            editSiteSettingsHandles.DevUrlInput = textBoxes.Where(x => x.Instance.Name == "dev-url").First();
+            var uploads = cut.FindComponents<RadzenUpload>();
+            editSiteSettingsHandles.SiteLogo = uploads[0];
+            editSiteSettingsHandles.SiteLogoSmall = uploads[1];
+            try
+            {
+                editSiteSettingsHandles.CancelButton = cut.Find("button[name='cancel']");
+            }
+            catch
+            {
+                editSiteSettingsHandles.CancelButton = null;
+            }
+            return editSiteSettingsHandles;
+        }
+        public static EditSiteSettingsHandlesInstances GetEditSiteSettingsHandlesInstances(IRenderedComponent<EditSiteSettings> cut)
+        {
+            var editSiteSettingsHandlesInstances = new EditSiteSettingsHandlesInstances
+            {
+                TitleTag = cut.Find("h3.title"),
+                SaveButton = cut.Find("button[name='save']")
+            };
+            var textBoxes = cut.FindComponents<RadzenTextBox>();
+            editSiteSettingsHandlesInstances.SiteNameInput = textBoxes.Where(x => x.Instance.Name == "site-name").First().Instance;
+            editSiteSettingsHandlesInstances.ProdUrlInput = textBoxes.Where(x => x.Instance.Name == "prod-url").First().Instance;
+            editSiteSettingsHandlesInstances.DevUrlInput = textBoxes.Where(x => x.Instance.Name == "dev-url").First().Instance;
+            editSiteSettingsHandlesInstances.SiteTaglineInput = cut.FindComponent<RadzenTextArea>().Instance;
+            var uploads = cut.FindComponents<RadzenUpload>();
+            editSiteSettingsHandlesInstances.SiteLogo = uploads[0].Instance;
+            editSiteSettingsHandlesInstances.SiteLogoSmall = uploads[1].Instance;
+            try
+            {
+                editSiteSettingsHandlesInstances.CancelButton = cut.Find("button[name='cancel']");
+            }
+            catch
+            {
+                editSiteSettingsHandlesInstances.CancelButton = null;
+            }
+            return editSiteSettingsHandlesInstances;
         }
     }
 }

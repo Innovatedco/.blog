@@ -1,0 +1,36 @@
+﻿@using Blazor.Blog.Shared;
+@inherits TestContext
+
+@code {
+    [Fact(DisplayName = "Should render")]
+    public void ShouldRender()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        // Act
+        var cut = ctx.RenderComponent<Logo>(parameters => parameters
+            .Add(p => p.Url, "image-url")
+            .Add(p => p.Height, "100")
+            .Add(p => p.Width, "965")
+            .Add(p => p.Classes, "img-flex")
+        );
+        var img = cut.Find("img");
+        // Assert
+        Assert.Contains("image-url", cut.Markup);
+        Assert.Equal("100", img.Attributes["height"]!.Value);
+        Assert.Equal("965", img.Attributes["width"]!.Value);
+        Assert.Equal("logo", img.Attributes["title"]!.Value);
+        Assert.Contains("img-flex", cut.Markup);
+    }
+
+    [Fact(DisplayName = "Should not render if a url parameter is not provided")]
+    public void ShouldNotRenderIfAUrlParamaterIsNotProvided()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        // Act
+        var cut = ctx.RenderComponent<Logo>();
+        // Assert
+        Assert.Empty(cut.Markup);
+    }
+}
