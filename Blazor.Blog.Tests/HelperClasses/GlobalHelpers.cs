@@ -14,6 +14,7 @@ using Blazor.Blog.Pages;
 using AngleSharp.Dom;
 using Blazor.Blog.Globals;
 using static Blazor.Blog.Tests.HelperClasses.ActHelpers;
+using Blazor.Blog.Shared;
 
 namespace Blazor.Blog.Tests.HelperClasses
 {
@@ -490,6 +491,8 @@ namespace Blazor.Blog.Tests.HelperClasses
             public IRenderedComponent<RadzenTextBox>? DevUrlInput { get; set; }
             public IRenderedComponent<RadzenUpload>? SiteLogo { get; set; }
             public IRenderedComponent<RadzenUpload>? SiteLogoSmall { get; set; }
+            public IRenderedComponent<Logo>? Logo { get; set; }
+            public IRenderedComponent<Logo>? LogoSmall { get; set; }
             public IElement? SaveButton { get; set; }
             public IElement? CancelButton { get; set; }
         }
@@ -502,6 +505,8 @@ namespace Blazor.Blog.Tests.HelperClasses
             public RadzenTextBox? DevUrlInput { get; set; }
             public RadzenUpload? SiteLogo { get; set; }
             public RadzenUpload? SiteLogoSmall { get; set; }
+            public Logo? Logo { get; set; }
+            public Logo? LogoSmall { get; set; }
             public IElement? SaveButton { get; set; }
             public IElement? CancelButton { get; set; }
         }
@@ -520,6 +525,9 @@ namespace Blazor.Blog.Tests.HelperClasses
             var uploads = cut.FindComponents<RadzenUpload>();
             editSiteSettingsHandles.SiteLogo = uploads[0];
             editSiteSettingsHandles.SiteLogoSmall = uploads[1];
+            var logos = cut.FindComponents<Logo>();
+            editSiteSettingsHandles.Logo = logos.Where(x => x.Instance.Name == "logo").First();
+            editSiteSettingsHandles.LogoSmall = logos.Where(x => x.Instance.Name == "logo-small").First();
             try
             {
                 editSiteSettingsHandles.CancelButton = cut.Find("button[name='cancel']");
@@ -545,6 +553,9 @@ namespace Blazor.Blog.Tests.HelperClasses
             var uploads = cut.FindComponents<RadzenUpload>();
             editSiteSettingsHandlesInstances.SiteLogo = uploads[0].Instance;
             editSiteSettingsHandlesInstances.SiteLogoSmall = uploads[1].Instance;
+            var logos = cut.FindComponents<Logo>();
+            editSiteSettingsHandlesInstances.Logo = logos.Where(x => x.Instance.Name == "logo").First().Instance;
+            editSiteSettingsHandlesInstances.LogoSmall = logos.Where(x => x.Instance.Name == "logo-small").First().Instance;
             try
             {
                 editSiteSettingsHandlesInstances.CancelButton = cut.Find("button[name='cancel']");

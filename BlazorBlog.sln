@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Blog", "BlazorBlog\Blazor.Blog.csproj", "{A43E898F-93BB-491D-830A-FF85C65F1624}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Blog", "Blazor.Blog\Blazor.Blog.csproj", "{A43E898F-93BB-491D-830A-FF85C65F1624}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Blog.Tests", "Blazor.Blog.Tests\Blazor.Blog.Tests.csproj", "{C8020669-0CFA-4A0E-ABFE-756A21CF6130}"
 EndProject

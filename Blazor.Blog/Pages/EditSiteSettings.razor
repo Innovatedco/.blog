@@ -120,7 +120,7 @@
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
-    private async Task OnLogoUploadCompleted(UploadCompleteEventArgs args)
+    public async Task OnLogoUploadCompleted(UploadCompleteEventArgs args)
     {
         var options = new JsonSerializerOptions
             {
@@ -137,7 +137,7 @@
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
-    private async Task OnLogoSmallUploadCompleted(UploadCompleteEventArgs args)
+    public async Task OnLogoSmallUploadCompleted(UploadCompleteEventArgs args)
     {
         var options = new JsonSerializerOptions
             {
@@ -154,7 +154,7 @@
     /// and modifies form element orientation accordingly
     /// </summary>
     /// <param name="matches"></param>
-    private async Task OnChange(bool matches)
+    public async Task OnChange(bool matches)
     {
         if (!matches)
         {

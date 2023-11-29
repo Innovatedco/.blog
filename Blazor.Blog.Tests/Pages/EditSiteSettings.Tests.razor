@@ -1,4 +1,5 @@
-﻿@inherits TestContext
+﻿@using Radzen
+@inherits TestContext
 
 @code {
 
@@ -84,5 +85,63 @@
 
         // Assert
         Assert.Equal(NavUrlHelpers.BaseUrl + NavUrlHelpers.Tail, navMan.Uri);
+    }
+
+    [Fact(DisplayName = "Should render logo on upload")]
+    public async Task ShouldRenderLogoOnUpload()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var siteSettings = await arrangeResult.SiteSettingsServiceEF.GetSiteSettings();
+        var url = NavUrlHelpers.EditSiteSettingsUrl;
+        var uploadEvent = new UploadCompleteEventArgs();
+        uploadEvent.RawResponse = "{\"url\":\"logo-url\"}";
+        uploadEvent.JsonResponse = ObjectToJsonSerializer.SerializeToJson(new ImageUploadResult { url = "logo-url" });
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<EditSiteSettings>();
+        var handles = ActHelpers.GetEditSiteSettingsHandlesInstances(cut);
+        await cut.Instance.OnLogoUploadCompleted(uploadEvent);
+
+        // Assert
+        Assert.Equal("logo-url", handles.Logo.Url);
+    }
+
+    [Fact(DisplayName = "Should render logo small on upload")]
+    public async Task ShouldRenderLogoSmallOnUpload()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var arrangeResult = ArrangeHelpers.GetArrangeResult();
+        var siteSettings = await arrangeResult.SiteSettingsServiceEF.GetSiteSettings()!;
+        var url = NavUrlHelpers.EditSiteSettingsUrl;
+        var uploadEvent = new UploadCompleteEventArgs();
+        uploadEvent.RawResponse = "{\"url\":\"logo-small-url\"}";
+        uploadEvent.JsonResponse = ObjectToJsonSerializer.SerializeToJson(new ImageUploadResult { url = "logo-small-url" });
+        ArrangeHelpers.Arrange(ctx, new ArrangeHelpers.ArrangeConfig
+            {
+                UseData = true,
+                UseNavigation = true,
+                UseNavigationUri = url,
+                UseAuthorization = ArrangeHelpers.ArrangeConfig.AuthorizationStatus.Authorized,
+                UseRadzen = true
+            }, arrangeResult);
+
+        // Act
+        var cut = ctx.RenderComponent<EditSiteSettings>();
+        var handles = ActHelpers.GetEditSiteSettingsHandlesInstances(cut);
+        await cut.Instance.OnLogoSmallUploadCompleted(uploadEvent);
+
+        // Assert
+        Assert.Equal("logo-small-url", handles.LogoSmall!.Url);
     }
 }

@@ -42,7 +42,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BlazorBlog\Blazor.Blog.csproj" />
+    <ProjectReference Include="..\Blazor.Blog\Blazor.Blog.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Shared\MobileEditMenu.Tests.razor">
