@@ -51,12 +51,6 @@ __Replace all entries surrounded with #### with your own values.__
   "AllowedHosts": "*",
   "ConnectionStrings": {
     "default": "####Your Database Connection String####" // e.g. Data Source=YourComputer\\SQLEXPRESS;Integrated Security=True;Database=BlazorBlog;Trust Server Certificate=true;
-  },
-  "CustomSettings": {
-    "ProdBlogUrl": "####The Production Url Of Your Blog####",  // e.g. https://blog.yoursite.com (no trailing / required)
-    "DevBlogUrl": "####The Devlopment Url For Your Blog####", // e.g. https://localhost:58945
-    "SiteName": "####Blazor Blog#####", //  e.g. will appear anywhere the blog name is used on the site, for example on the privacy page or in the meta tags in the header and page titles etc
-    "TagLine": "####Talking about life, the universe and everything####" // will appear in the meta tags in the header
   }
 }
 ```
