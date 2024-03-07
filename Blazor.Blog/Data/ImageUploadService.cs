@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Blazor.Blog.Data
 {
-    public class ImageUploadService : IImageUploadService
+    public class ImageUploadService(IWebHostEnvironment environment) : IImageUploadService
     {
-        private readonly IWebHostEnvironment _environment;
-        public ImageUploadService(IWebHostEnvironment environment) 
-        {
-            _environment = environment;
-        }
+        private readonly IWebHostEnvironment _environment = environment;
 
         /// <summary>
         /// returns the file extension for the posted image
@@ -86,11 +84,9 @@ namespace Blazor.Blog.Data
         /// <param name="fileName"></param>
         public void SaveFile(IFormFile file, string fileName)
         {
-            using (var stream = new FileStream(Path.Combine(_environment.WebRootPath + "\\upload\\image", fileName), FileMode.Create))
-            {
-                // Save the file
-                file.CopyTo(stream);
-            }
+            using var stream = new FileStream(Path.Combine(_environment.WebRootPath + "\\upload\\image", fileName), FileMode.Create);
+            // Save the file
+            file.CopyTo(stream);
         }
 
         /// <summary>
@@ -101,15 +97,13 @@ namespace Blazor.Blog.Data
         /// <param name="fileName"></param>
         public void SaveThumbnail(IFormFile file, string fileName)
         {
-            using var image = Image.Load(file.OpenReadStream());
+            using Image image = Image.Load(file.OpenReadStream());
+            image.Mutate(x => x.Resize(new ResizeOptions
             {
-                image.Mutate(x => x.Resize(new ResizeOptions
-                {
-                    Size = new Size(250, 250),
-                    Mode = ResizeMode.Crop
-                }));
-                image.Save(Path.Combine(_environment.WebRootPath + "\\upload\\image\\thumb", "small-" + fileName));
-            }
+                Size = new Size(250, 250),
+                Mode = ResizeMode.Crop
+            }));
+            image.Save(Path.Combine(_environment.WebRootPath + "\\upload\\image\\thumb", "small-" + fileName));
         }
 
         /// <summary>
