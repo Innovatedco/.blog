@@ -398,10 +398,17 @@ FodyWeavers.xsd
 *.sln.iml
 
 #project specific
-/BlazorBlog/appsettings.json
+/Blazor.Blog/appsettings.json
+/Blazor.Blog/appsettings.Development.json
 /Blazor.Blog.Tests/coveragereport
 /Blazor.Blog.Tests/TestResults
 /Blazor.Blog.Tests/coverage.ps1
-/BlazorBlog/migrations
-/BlazorBlog/wwwroot/css/custom-bootstrap.scss
-/BlazorBlog/wwwroot/css/package.json
+/Blazor.Blog/migrations
+/Blazor.Blog/wwwroot/css/custom-bootstrap.scss
+/Blazor.Blog/wwwroot/css/package.json
+/Blazor.Blog/appsettings.json
+/Blazor.Blog/appsettings.Development.json
+/Blazor.Blog/Migrations/20231122145838_initial.cs
+/Blazor.Blog/Migrations/20231122145838_initial.Designer.cs
+/Blazor.Blog/Migrations/DataContextModelSnapshot.cs
+/Blazor.Blog/Migrations/DataContextModelSnapshot.cs
