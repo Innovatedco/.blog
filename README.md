@@ -56,7 +56,7 @@ __Replace all entries surrounded with #### with your own values.__
 ```
 4. Next we are going to scaffold the database so open the package manager console and cd into the blog project folder:
 ```
-cd BlazorBlog
+cd Blazor.Blog
 ```
  Then run the following command to generate an entity framework migration: 
  ```PowerShell
